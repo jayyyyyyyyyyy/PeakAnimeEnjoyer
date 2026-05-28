@@ -4,22 +4,36 @@ import { useState } from "react"
 import { X, Check, Minus, Plus } from "lucide-react"
 import { cn } from "@/lib/utils"
 
+import { useRouter } from "next/navigation"
+import { updateEpisodeProgress } from "@/app/actions/progress"
+
 interface ActionModalProps {
   isOpen: boolean
   onClose: () => void
+  seasonId: string
 }
 
-export function ActionModal({ isOpen, onClose }: ActionModalProps) {
+export function ActionModal({ isOpen, onClose, seasonId,}: ActionModalProps) {
   const [episode, setEpisode] = useState(16)
   const [saved, setSaved] = useState(false)
   const maxEpisodes = 28
+  const router = useRouter()
 
-  const handleSave = () => {
-    setSaved(true)
-    setTimeout(() => {
-      setSaved(false)
-      onClose()
-    }, 1500)
+  const handleSave = async () => {
+    try {
+      await updateEpisodeProgress(seasonId, episode)
+
+      setSaved(true)
+
+      router.refresh()
+
+      setTimeout(() => {
+        setSaved(false)
+        onClose()
+      }, 1500)
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   if (!isOpen) return null
