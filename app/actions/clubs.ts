@@ -16,22 +16,37 @@ export async function createClub(
     throw new Error("Unauthorized")
   }
 
+  const { data: testAuth } = await supabase.rpc("debug_auth_uid")
+  console.log("RPC AUTH UID:", testAuth)
+
+  console.log("USER:", user)
+  console.log("USER ID:", user.id)
+
+  const insertData = {
+    name,
+    slug,
+    invite_code: crypto.randomUUID().slice(0, 8),
+    created_by: user.id,
+  }
+
+  console.log("INSERT DATA:", insertData)
+
   // 1. create club
   const { data: club, error: clubError } = await supabase
     .from("clubs")
-    .insert({
-      name,
-      slug,
-      invite_code: crypto.randomUUID().slice(0, 8),
-      created_by: user.id,
-    })
+    .insert(insertData)
     .select()
     .single()
 
   if (clubError || !club) {
-    console.error(clubError)
-    throw new Error("Failed to create club")
+    console.error("CLUB ERROR:", clubError)
+
+    throw new Error(
+      `Club Error: ${clubError?.message}`
+    )
   }
+
+  console.log("CREATED CLUB:", club)
 
   // 2. create owner membership
   const { error: memberError } = await supabase
@@ -43,9 +58,14 @@ export async function createClub(
     })
 
   if (memberError) {
-    console.error(memberError)
-    throw new Error("Failed to create membership")
+    console.error("MEMBER ERROR:", memberError)
+
+    throw new Error(
+      `Member Error: ${memberError.message}`
+    )
   }
+
+  console.log("OWNER MEMBERSHIP CREATED")
 
   return club
 }

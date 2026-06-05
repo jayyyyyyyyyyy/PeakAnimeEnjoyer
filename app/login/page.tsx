@@ -8,25 +8,66 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [loginLoading, setLoginLoading] = useState(false)
+  const [signupLoading, setSignupLoading] = useState(false)
 
   const handleSignUp = async () => {
-    await supabase.auth.signUp({
-      email,
-      password,
-    })
+    try {
+      setSignupLoading(true)
+
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      })
+
+      console.log("SIGNUP DATA:", data)
+      console.log("SIGNUP ERROR:", error)
+
+      if (error) {
+        alert(`Errore registrazione: ${error.message}`)
+        return
+      }
+
+      alert("Registrazione completata!")
+    } catch (err) {
+      console.error("Unexpected signup error:", err)
+      alert("Errore imprevisto durante la registrazione")
+    } finally {
+      setSignupLoading(false)
+    }
   }
 
   const handleLogin = async () => {
-    await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+    try {
+      setLoginLoading(true)
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+
+      console.log("LOGIN DATA:", data)
+      console.log("LOGIN ERROR:", error)
+
+      if (error) {
+        alert(`Errore login: ${error.message}`)
+        return
+      }
+
+      alert("Login effettuato!")
+    } catch (err) {
+      console.error("Unexpected login error:", err)
+      alert("Errore imprevisto durante il login")
+    } finally {
+      setLoginLoading(false)
+    }
   }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-4">
       <input
         className="border p-2"
+        type="email"
         placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
@@ -40,12 +81,20 @@ export default function LoginPage() {
         onChange={(e) => setPassword(e.target.value)}
       />
 
-      <button className="border px-4 py-2" onClick={handleLogin}>
-        Login
+      <button
+        className="border px-4 py-2"
+        onClick={handleLogin}
+        disabled={loginLoading}
+      >
+        {loginLoading ? "Caricamento..." : "Login"}
       </button>
 
-      <button className="border px-4 py-2" onClick={handleSignUp}>
-        Sign Up
+      <button
+        className="border px-4 py-2"
+        onClick={handleSignUp}
+        disabled={signupLoading}
+      >
+        {signupLoading ? "Caricamento..." : "Sign Up"}
       </button>
     </div>
   )
