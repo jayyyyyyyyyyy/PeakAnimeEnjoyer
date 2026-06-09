@@ -9,11 +9,17 @@ import { ProfileScreen } from "@/components/screens/profile-screen"
 import { ActionModal } from "@/components/action-modal"
 
 interface AnimeClubAppProps {
-  seasonId: string
+  club: any
+  membership: any
+  season: any
+  members: any[]
 }
 
 export default function AnimeClubApp({
-  seasonId,
+  club,
+  membership,
+  season,
+  members,
 }: AnimeClubAppProps) {
   const [activeTab, setActiveTab] = useState("home")
   const [showActionModal, setShowActionModal] = useState(false)
@@ -25,28 +31,41 @@ export default function AnimeClubApp({
       setActiveTab(tab)
     }
   }
-
+console.log("MEMBERS:", members)
   return (
     <main className="min-h-screen bg-[#0F172A] max-w-lg mx-auto relative overflow-x-hidden">
-      {/* Screen Content */}
       <div className="min-h-screen">
-        {activeTab === "home" && <HomeScreen />}
-        {activeTab === "season" && <SeasonScreen />}
-        {activeTab === "hall" && <HallOfFameScreen />}
-        {activeTab === "profile" && <ProfileScreen />}
+        {activeTab === "home" && (
+            <HomeScreen
+              club={club}
+              membership={membership}
+              season={season}
+              members={members}
+            />
+        )}
+
+        {activeTab === "season" && (
+          <SeasonScreen />
+        )}
+
+        {activeTab === "hall" && (
+          <HallOfFameScreen />
+        )}
+
+        {activeTab === "profile" && (
+          <ProfileScreen />
+        )}
       </div>
 
-      {/* Bottom Navigation */}
       <BottomNav
         activeTab={activeTab}
         onTabChange={handleTabChange}
       />
 
-      {/* Action Modal */}
       <ActionModal
         isOpen={showActionModal}
         onClose={() => setShowActionModal(false)}
-        seasonId={seasonId}
+        seasonId={season?.id ?? ""}
       />
     </main>
   )

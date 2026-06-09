@@ -22,10 +22,13 @@ export default async function ClubPage({
   if (!context.club) {
     notFound()
   }
-
-  return (
-    <AnimeClubApp
-      seasonId={context.season?.id ?? ""}
-    />
-  )
+console.log("CONTEXT MEMBERS:", context.members)
+return (
+<AnimeClubApp
+  club={context.club}
+  membership={context.membership}
+  season={context.season}
+  members={context.members ?? []}
+/>
+)
 }

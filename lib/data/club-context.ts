@@ -81,10 +81,23 @@ export async function getClubContext(
 
   console.log("SUCCESS: CONTEXT LOADED")
 
-  return {
-    user,
-    club,
-    membership,
-    season,
-  }
+  const { data: members } = await supabase
+  .from("club_members")
+  .select(`
+    *,
+    profiles (
+      username
+    )
+  `)
+  .eq("club_id", club.id)
+
+  console.log("MEMBERS QUERY:", members)
+  
+return {
+  user,
+  club,
+  membership,
+  season,
+  members: members ?? [],
+}
 }
