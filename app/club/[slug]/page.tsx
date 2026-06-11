@@ -23,12 +23,16 @@ export default async function ClubPage({
     notFound()
   }
 console.log("CONTEXT MEMBERS:", context.members)
+
 return (
-<AnimeClubApp
-  club={context.club}
-  membership={context.membership}
-  season={context.season}
-  members={context.members ?? []}
-/>
+  <AnimeClubApp
+    club={context.club}
+    membership={context.membership}
+    season={context.season}
+    members={context.members ?? []}
+    proposal={context.proposal}
+    memberCount={context.memberCount}
+    proposalCount={context.proposalCount}
+  />
 )
 }

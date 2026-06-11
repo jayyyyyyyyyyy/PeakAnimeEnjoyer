@@ -14,6 +14,8 @@ interface AnimeClubAppProps {
   season: any
   members: any[]
   proposal: any
+  memberCount: number
+proposalCount: number
 }
 
 export default function AnimeClubApp({
@@ -22,6 +24,8 @@ export default function AnimeClubApp({
   season,
   members,
   proposal,
+  memberCount,
+proposalCount,
 }: AnimeClubAppProps) {
   const [activeTab, setActiveTab] = useState("home")
   const [showActionModal, setShowActionModal] = useState(false)
@@ -44,6 +48,8 @@ console.log("MEMBERS:", members)
   season={season}
   members={members}
   proposal={proposal}
+  memberCount={memberCount}
+  proposalCount={proposalCount}
 />
         )}
 

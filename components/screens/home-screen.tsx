@@ -9,6 +9,8 @@ interface HomeScreenProps {
   season: any
   members: any[]
   proposal: any
+  memberCount: number
+proposalCount: number
 }
 
 export function HomeScreen({
@@ -17,7 +19,10 @@ export function HomeScreen({
   season,
   members,
   proposal,
+  memberCount,
+proposalCount,
 }: HomeScreenProps) {
+  console.log("HOME PROPOSAL:", proposal)
   return (
     <div className="pb-24 px-4 space-y-6">
       <header className="flex items-center justify-between pt-4">
@@ -47,6 +52,36 @@ export function HomeScreen({
           </span>
         </div>
       </header>
+
+{proposal && (
+  <div className="glass rounded-2xl p-4 border border-[#8B5CF6]/30">
+    <p className="text-xs text-white/50 mb-2">
+      Your Proposal
+    </p>
+
+    <h2 className="text-lg font-bold text-white">
+      {proposal.anime?.title}
+    </h2>
+
+    <p className="text-sm text-white/60">
+      Waiting for challenge...
+    </p>
+  </div>
+)}
+
+<div className="glass rounded-2xl p-4 border border-white/10">
+  <p className="text-xs text-white/50 mb-2">
+    Proposal Progress
+  </p>
+
+  <h2 className="text-lg font-bold text-white">
+    {proposalCount} / {memberCount}
+  </h2>
+
+  <p className="text-sm text-white/60">
+    Members submitted a proposal
+  </p>
+</div>
 
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1E293B] to-[#0F172A] border border-white/10">
         <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A] via-transparent to-transparent z-10" />

@@ -109,6 +109,22 @@ const { data: proposal } = await supabase
 
 console.log("PROPOSAL:", proposal)
 
+const { count: memberCount } = await supabase
+  .from("club_members")
+  .select("*", {
+    count: "exact",
+    head: true,
+  })
+  .eq("club_id", club.id)
+
+const { count: proposalCount } = await supabase
+  .from("anime_proposals")
+  .select("*", {
+    count: "exact",
+    head: true,
+  })
+  .eq("season_id", season?.id)
+
 return {
   user,
   club,
@@ -116,5 +132,7 @@ return {
   season,
   members: members ?? [],
   proposal,
+  memberCount: memberCount ?? 0,
+  proposalCount: proposalCount ?? 0,
 }
 }
