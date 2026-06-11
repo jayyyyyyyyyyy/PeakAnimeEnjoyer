@@ -9,7 +9,7 @@ export async function getActiveSeason(
     .from("seasons")
     .select(`
       *,
-      anime:selected_anime_id (
+      anime:seasons_selected_anime_id_fkey (
         id,
         title,
         image_url,

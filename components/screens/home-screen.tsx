@@ -8,6 +8,7 @@ interface HomeScreenProps {
   membership: any
   season: any
   members: any[]
+  proposal: any
 }
 
 export function HomeScreen({
@@ -15,6 +16,7 @@ export function HomeScreen({
   membership,
   season,
   members,
+  proposal,
 }: HomeScreenProps) {
   return (
     <div className="pb-24 px-4 space-y-6">

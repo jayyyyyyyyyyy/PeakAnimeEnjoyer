@@ -86,3 +86,41 @@ export async function submitProposal(
 
   return data
 }
+
+export async function getUserProposal(
+  seasonId: string
+) {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    throw new Error("Unauthorized")
+  }
+
+  const { data, error } = await supabase
+    .from("anime_proposals")
+    .select(`
+      *,
+      anime (
+        id,
+        title,
+        image_url
+      )
+    `)
+    .eq("season_id", seasonId)
+    .eq("user_id", user.id)
+    .maybeSingle()
+
+  if (error) {
+    console.error(error)
+
+    throw new Error(
+      "Failed to load proposal"
+    )
+  }
+
+  return data
+}

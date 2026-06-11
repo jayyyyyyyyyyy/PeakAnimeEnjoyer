@@ -92,12 +92,29 @@ export async function getClubContext(
   .eq("club_id", club.id)
 
   console.log("MEMBERS QUERY:", members)
-  
+
+const { data: proposal } = await supabase
+  .from("anime_proposals")
+  .select(`
+    *,
+    anime:anime_proposals_anime_id_fkey (
+      id,
+      title,
+      image_url
+    )
+  `)
+  .eq("season_id", season?.id)
+  .eq("user_id", user.id)
+  .maybeSingle()
+
+console.log("PROPOSAL:", proposal)
+
 return {
   user,
   club,
   membership,
   season,
   members: members ?? [],
+  proposal,
 }
 }

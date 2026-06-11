@@ -13,6 +13,7 @@ interface AnimeClubAppProps {
   membership: any
   season: any
   members: any[]
+  proposal: any
 }
 
 export default function AnimeClubApp({
@@ -20,6 +21,7 @@ export default function AnimeClubApp({
   membership,
   season,
   members,
+  proposal,
 }: AnimeClubAppProps) {
   const [activeTab, setActiveTab] = useState("home")
   const [showActionModal, setShowActionModal] = useState(false)
@@ -36,12 +38,13 @@ console.log("MEMBERS:", members)
     <main className="min-h-screen bg-[#0F172A] max-w-lg mx-auto relative overflow-x-hidden">
       <div className="min-h-screen">
         {activeTab === "home" && (
-            <HomeScreen
-              club={club}
-              membership={membership}
-              season={season}
-              members={members}
-            />
+<HomeScreen
+  club={club}
+  membership={membership}
+  season={season}
+  members={members}
+  proposal={proposal}
+/>
         )}
 
         {activeTab === "season" && (
