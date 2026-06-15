@@ -25,17 +25,18 @@ export function HomeScreen({
 }: HomeScreenProps) {
   console.log("HOME PROPOSAL:", proposal)
 
-    async function handleStartChallenge() {
-    if (!season?.id) return
+async function handleStartChallenge() {
+  alert("CLICK OK")
 
-    try {
-      await startChallenge(season.id)
+  console.log("BUTTON CLICKED")
 
-      window.location.reload()
-    } catch (error) {
-      console.error(error)
-    }
+  if (!season?.id) {
+    alert("NO SEASON")
+    return
   }
+
+  alert("SEASON FOUND")
+}
 
 
   return (

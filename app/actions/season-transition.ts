@@ -25,13 +25,20 @@ export async function startChallenge(
     throw new Error("Season not found")
   }
 
-  const { error } = await supabase
-    .from("seasons")
-    .update({
-      status: "CHALLENGE",
-    })
-    .eq("id", seasonId)
+  console.log("START CHALLENGE")
+console.log("USER:", user.id)
+console.log("SEASON:", seasonId)
 
+const { data, error } = await supabase
+  .from("seasons")
+  .update({
+    status: "CHALLENGE",
+  })
+  .eq("id", seasonId)
+  .select()
+
+  console.log("UPDATE RESULT:", data)
+  console.log("UPDATE ERROR:", error)
   if (error) {
     throw new Error(
       "Failed to start challenge"
