@@ -1,15 +1,26 @@
 "use client"
 
-import { Clock, Sparkles } from "lucide-react"
+import { Clock, Sparkles, Users } from "lucide-react"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { startChallenge } from "@/app/actions/season-transition"
+import type {
+  AnimeProposal,
+  Club,
+  ClubMember,
+  Membership,
+  Season,
+  SeasonChallenge,
+} from "@/lib/types/club"
 
 interface HomeScreenProps {
-  club: any
-  membership: any
-  season: any
-  members: any[]
-  proposal: any
+  club: Club
+  membership: Membership
+  season: Season | null
+  members: ClubMember[]
+  proposal: AnimeProposal | null
+  challenge: SeasonChallenge | null
   memberCount: number
   proposalCount: number
 }
@@ -20,24 +31,153 @@ export function HomeScreen({
   season,
   members,
   proposal,
+  challenge,
   memberCount,
   proposalCount,
 }: HomeScreenProps) {
-  console.log("HOME PROPOSAL:", proposal)
+  const router = useRouter()
+  const [startError, setStartError] = useState<string | null>(null)
+  const [isStartingChallenge, setIsStartingChallenge] = useState(false)
 
-async function handleStartChallenge() {
-  alert("CLICK OK")
+  async function handleStartChallenge() {
+    if (!season?.id) {
+      setStartError("No active season found.")
+      return
+    }
 
-  console.log("BUTTON CLICKED")
+    setStartError(null)
+    setIsStartingChallenge(true)
 
-  if (!season?.id) {
-    alert("NO SEASON")
-    return
+    try {
+      await startChallenge(season.id)
+      router.refresh()
+    } catch (error) {
+      setStartError(
+        error instanceof Error
+          ? error.message
+          : "Unable to start challenge."
+      )
+    } finally {
+      setIsStartingChallenge(false)
+    }
   }
 
-  alert("SEASON FOUND")
-}
+  function renderSeasonStatusContent() {
+    if (!season) {
+      return (
+        <div className="glass rounded-2xl p-4 border border-white/10">
+          <p className="text-sm text-white/60">
+            No active season yet.
+          </p>
+        </div>
+      )
+    }
 
+    if (season.status === "CHALLENGE") {
+      return (
+        <div className="glass rounded-2xl p-4 border border-[#8B5CF6]/30">
+          <p className="text-xs text-white/50 mb-2">
+            Your Secret Challenge
+          </p>
+
+          {challenge ? (
+            <>
+              {challenge.anime?.image_url && (
+                <div
+                  className="h-40 rounded-2xl bg-cover bg-center mb-4 border border-white/10"
+                  style={{
+                    backgroundImage: `url('${challenge.anime.image_url}')`,
+                  }}
+                />
+              )}
+
+              <h2 className="text-lg font-bold text-white">
+                {challenge.anime?.title}
+              </h2>
+
+              <p className="text-sm text-white/60">
+                Watch this anime and get ready to vote your interest.
+              </p>
+
+              {challenge.anime?.episodes && (
+                <p className="text-xs text-white/40 mt-2">
+                  {challenge.anime.episodes} episodes
+                </p>
+              )}
+            </>
+          ) : (
+            <>
+              <h2 className="text-lg font-bold text-white">
+                Challenges are being prepared
+              </h2>
+
+              <p className="text-sm text-white/60">
+                Refresh in a moment if your assignment does not appear yet.
+              </p>
+            </>
+          )}
+        </div>
+      )
+    }
+
+    if (season.status !== "PROPOSAL") {
+      return null
+    }
+
+    return (
+      <>
+        {proposal && (
+          <div className="glass rounded-2xl p-4 border border-[#8B5CF6]/30">
+            <p className="text-xs text-white/50 mb-2">
+              Your Proposal
+            </p>
+
+            <h2 className="text-lg font-bold text-white">
+              {proposal.anime?.title}
+            </h2>
+
+            <p className="text-sm text-white/60">
+              Waiting for the challenge phase.
+            </p>
+          </div>
+        )}
+
+        <div className="glass rounded-2xl p-4 border border-white/10">
+          <p className="text-xs text-white/50 mb-2">
+            Proposal Progress
+          </p>
+
+          <h2 className="text-lg font-bold text-white">
+            {proposalCount} / {memberCount}
+          </h2>
+
+          <p className="text-sm text-white/60">
+            Members submitted a proposal
+          </p>
+        </div>
+
+        {membership.role === "OWNER" &&
+          proposalCount === memberCount &&
+          memberCount > 1 && (
+            <button
+              onClick={handleStartChallenge}
+              disabled={isStartingChallenge}
+              className="w-full rounded-xl bg-purple-600 p-3 font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isStartingChallenge
+                ? "Starting Challenge..."
+                : "Start Challenge"}
+            </button>
+          )}
+
+        {startError && (
+          <p className="text-sm text-red-300">
+            {startError}
+          </p>
+        )}
+      </>
+    )
+  }
 
   return (
     <div className="pb-24 px-4 space-y-6">
@@ -49,7 +189,7 @@ async function handleStartChallenge() {
 
           <div>
             <h1 className="text-xl font-bold gradient-text">
-              {club?.name}
+              {club.name}
             </h1>
 
             <p className="text-xs text-white/50">
@@ -57,7 +197,7 @@ async function handleStartChallenge() {
             </p>
 
             <p className="text-xs text-yellow-400">
-              {membership?.role}
+              {membership.role}
             </p>
           </div>
         </div>
@@ -69,46 +209,7 @@ async function handleStartChallenge() {
         </div>
       </header>
 
-    {proposal && (
-      <div className="glass rounded-2xl p-4 border border-[#8B5CF6]/30">
-        <p className="text-xs text-white/50 mb-2">
-          Your Proposal
-        </p>
-
-        <h2 className="text-lg font-bold text-white">
-          {proposal.anime?.title}
-        </h2>
-
-        <p className="text-sm text-white/60">
-          Waiting for challenge...
-        </p>
-      </div>
-    )}
-
-    <div className="glass rounded-2xl p-4 border border-white/10">
-      <p className="text-xs text-white/50 mb-2">
-        Proposal Progress
-      </p>
-
-      <h2 className="text-lg font-bold text-white">
-        {proposalCount} / {memberCount}
-      </h2>
-
-      <p className="text-sm text-white/60">
-        Members submitted a proposal
-      </p>
-    </div>
-
-    {membership?.role === "OWNER" &&
-    proposalCount === memberCount &&
-    season?.status === "PROPOSAL" && (
-      <button
-        onClick={handleStartChallenge}
-        className="w-full rounded-xl bg-purple-600 p-3 font-bold text-white"
-      >
-        Start Challenge
-      </button>
-    )}
+      {renderSeasonStatusContent()}
 
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1E293B] to-[#0F172A] border border-white/10">
         <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A] via-transparent to-transparent z-10" />
@@ -167,7 +268,8 @@ async function handleStartChallenge() {
 
       <div className="space-y-3">
         <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-          <span>👥</span> Club Members
+          <Users className="w-5 h-5 text-white/70" />
+          Club Members
         </h3>
 
         <div className="space-y-2">
@@ -216,9 +318,7 @@ async function handleStartChallenge() {
                       member.status === "red" &&
                         "bg-gradient-to-r from-[#EF4444] to-[#DC2626]"
                     )}
-                    style={{
-                            width: "0%"
-                          }}
+                    style={{ width: "0%" }}
                   />
                 </div>
               </div>
@@ -241,10 +341,6 @@ async function handleStartChallenge() {
             <p className="text-2xl font-bold text-[#F59E0B]">
               12 days
             </p>
-          </div>
-
-          <div className="ml-auto text-4xl animate-float">
-            ⏰
           </div>
         </div>
       </div>

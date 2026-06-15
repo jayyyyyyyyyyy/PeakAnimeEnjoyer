@@ -15,13 +15,10 @@ export default function LoginPage() {
     try {
       setSignupLoading(true)
 
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
       })
-
-      console.log("SIGNUP DATA:", data)
-      console.log("SIGNUP ERROR:", error)
 
       if (error) {
         alert(`Errore registrazione: ${error.message}`)
@@ -41,13 +38,10 @@ export default function LoginPage() {
     try {
       setLoginLoading(true)
 
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
-
-      console.log("LOGIN DATA:", data)
-      console.log("LOGIN ERROR:", error)
 
       if (error) {
         alert(`Errore login: ${error.message}`)

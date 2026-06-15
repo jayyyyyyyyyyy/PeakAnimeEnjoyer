@@ -5,18 +5,12 @@ export async function getClubContext(
 ) {
   const supabase = await createClient()
 
-  console.log("=== CLUB CONTEXT ===")
-  console.log("SLUG:", slug)
-
   // 1. auth
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  console.log("USER:", user?.id)
-
   if (!user) {
-    console.log("FAILED: NO USER")
     return null
   }
 
@@ -27,11 +21,7 @@ export async function getClubContext(
     .eq("slug", slug)
     .single()
 
-  console.log("CLUB:", club)
-  console.log("CLUB ERROR:", clubError)
-
-  if (!club) {
-    console.log("FAILED: NO CLUB")
+  if (clubError || !club) {
     return null
   }
 
@@ -46,22 +36,12 @@ export async function getClubContext(
     .eq("user_id", user.id)
     .single()
 
-  console.log("MEMBERSHIP:", membership)
-  console.log(
-    "MEMBERSHIP ERROR:",
-    membershipError
-  )
-
-  if (!membership) {
-    console.log("FAILED: NO MEMBERSHIP")
+  if (membershipError || !membership) {
     return null
   }
 
   // 4. active season
-  const {
-    data: season,
-    error: seasonError,
-  } = await supabase
+  const { data: season } = await supabase
     .from("seasons")
     .select(`
       *,
@@ -74,65 +54,86 @@ export async function getClubContext(
     `)
     .eq("club_id", club.id)
     .neq("status", "FINISHED")
-    .single()
-
-  console.log("SEASON:", season)
-  console.log("SEASON ERROR:", seasonError)
-
-  console.log("SUCCESS: CONTEXT LOADED")
+    .maybeSingle()
 
   const { data: members } = await supabase
-  .from("club_members")
-  .select(`
-    *,
-    profiles (
-      username
-    )
-  `)
-  .eq("club_id", club.id)
+    .from("club_members")
+    .select(`
+      *,
+      profiles (
+        username
+      )
+    `)
+    .eq("club_id", club.id)
 
-  console.log("MEMBERS QUERY:", members)
+  const { count: memberCount } = await supabase
+    .from("club_members")
+    .select("*", {
+      count: "exact",
+      head: true,
+    })
+    .eq("club_id", club.id)
 
-const { data: proposal } = await supabase
-  .from("anime_proposals")
-  .select(`
-    *,
-    anime:anime_proposals_anime_id_fkey (
-      id,
-      title,
-      image_url
-    )
-  `)
-  .eq("season_id", season?.id)
-  .eq("user_id", user.id)
-  .maybeSingle()
+  if (!season) {
+    return {
+      user,
+      club,
+      membership,
+      season,
+      members: members ?? [],
+      proposal: null,
+      challenge: null,
+      memberCount: memberCount ?? 0,
+      proposalCount: 0,
+    }
+  }
 
-console.log("PROPOSAL:", proposal)
+  const { data: proposal } = await supabase
+    .from("anime_proposals")
+    .select(`
+      *,
+      anime:anime_proposals_anime_id_fkey (
+        id,
+        title,
+        image_url
+      )
+    `)
+    .eq("season_id", season.id)
+    .eq("user_id", user.id)
+    .maybeSingle()
 
-const { count: memberCount } = await supabase
-  .from("club_members")
-  .select("*", {
-    count: "exact",
-    head: true,
-  })
-  .eq("club_id", club.id)
+  const { count: proposalCount } = await supabase
+    .from("anime_proposals")
+    .select("*", {
+      count: "exact",
+      head: true,
+    })
+    .eq("season_id", season.id)
 
-const { count: proposalCount } = await supabase
-  .from("anime_proposals")
-  .select("*", {
-    count: "exact",
-    head: true,
-  })
-  .eq("season_id", season?.id)
+  const { data: challenge } = await supabase
+    .from("season_challenges")
+    .select(`
+      *,
+      anime:anime_id (
+        id,
+        title,
+        image_url,
+        episodes
+      )
+    `)
+    .eq("season_id", season.id)
+    .eq("receiver_user_id", user.id)
+    .maybeSingle()
 
-return {
-  user,
-  club,
-  membership,
-  season,
-  members: members ?? [],
-  proposal,
-  memberCount: memberCount ?? 0,
-  proposalCount: proposalCount ?? 0,
-}
+  return {
+    user,
+    club,
+    membership,
+    season,
+    members: members ?? [],
+    proposal,
+    challenge,
+    memberCount: memberCount ?? 0,
+    proposalCount: proposalCount ?? 0,
+  }
 }

@@ -7,15 +7,24 @@ import { SeasonScreen } from "@/components/screens/season-screen"
 import { HallOfFameScreen } from "@/components/screens/hall-of-fame-screen"
 import { ProfileScreen } from "@/components/screens/profile-screen"
 import { ActionModal } from "@/components/action-modal"
+import type {
+  AnimeProposal,
+  Club,
+  ClubMember,
+  Membership,
+  Season,
+  SeasonChallenge,
+} from "@/lib/types/club"
 
 interface AnimeClubAppProps {
-  club: any
-  membership: any
-  season: any
-  members: any[]
-  proposal: any
+  club: Club
+  membership: Membership
+  season: Season | null
+  members: ClubMember[]
+  proposal: AnimeProposal | null
+  challenge: SeasonChallenge | null
   memberCount: number
-proposalCount: number
+  proposalCount: number
 }
 
 export default function AnimeClubApp({
@@ -24,8 +33,9 @@ export default function AnimeClubApp({
   season,
   members,
   proposal,
+  challenge,
   memberCount,
-proposalCount,
+  proposalCount,
 }: AnimeClubAppProps) {
   const [activeTab, setActiveTab] = useState("home")
   const [showActionModal, setShowActionModal] = useState(false)
@@ -33,37 +43,33 @@ proposalCount,
   const handleTabChange = (tab: string) => {
     if (tab === "action") {
       setShowActionModal(true)
-    } else {
-      setActiveTab(tab)
+      return
     }
+
+    setActiveTab(tab)
   }
-console.log("MEMBERS:", members)
+
   return (
     <main className="min-h-screen bg-[#0F172A] max-w-lg mx-auto relative overflow-x-hidden">
       <div className="min-h-screen">
         {activeTab === "home" && (
-<HomeScreen
-  club={club}
-  membership={membership}
-  season={season}
-  members={members}
-  proposal={proposal}
-  memberCount={memberCount}
-  proposalCount={proposalCount}
-/>
+          <HomeScreen
+            club={club}
+            membership={membership}
+            season={season}
+            members={members}
+            proposal={proposal}
+            challenge={challenge}
+            memberCount={memberCount}
+            proposalCount={proposalCount}
+          />
         )}
 
-        {activeTab === "season" && (
-          <SeasonScreen />
-        )}
+        {activeTab === "season" && <SeasonScreen />}
 
-        {activeTab === "hall" && (
-          <HallOfFameScreen />
-        )}
+        {activeTab === "hall" && <HallOfFameScreen />}
 
-        {activeTab === "profile" && (
-          <ProfileScreen />
-        )}
+        {activeTab === "profile" && <ProfileScreen />}
       </div>
 
       <BottomNav

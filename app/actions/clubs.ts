@@ -16,12 +16,6 @@ export async function createClub(
     throw new Error("Unauthorized")
   }
 
-  const { data: testAuth } = await supabase.rpc("debug_auth_uid")
-  console.log("RPC AUTH UID:", testAuth)
-
-  console.log("USER:", user)
-  console.log("USER ID:", user.id)
-
   const insertData = {
     name,
     slug,
@@ -29,9 +23,6 @@ export async function createClub(
     created_by: user.id,
   }
 
-  console.log("INSERT DATA:", insertData)
-
-  // 1. create club
   const { data: club, error: clubError } = await supabase
     .from("clubs")
     .insert(insertData)
@@ -39,16 +30,11 @@ export async function createClub(
     .single()
 
   if (clubError || !club) {
-    console.error("CLUB ERROR:", clubError)
-
     throw new Error(
       `Club Error: ${clubError?.message}`
     )
   }
 
-  console.log("CREATED CLUB:", club)
-
-  // 2. create owner membership
   const { error: memberError } = await supabase
     .from("club_members")
     .insert({
@@ -58,14 +44,10 @@ export async function createClub(
     })
 
   if (memberError) {
-    console.error("MEMBER ERROR:", memberError)
-
     throw new Error(
       `Member Error: ${memberError.message}`
     )
   }
-
-  console.log("OWNER MEMBERSHIP CREATED")
 
   return club
 }
