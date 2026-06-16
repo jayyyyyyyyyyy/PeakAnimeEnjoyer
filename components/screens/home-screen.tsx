@@ -4,11 +4,16 @@ import { Clock, Sparkles, Users } from "lucide-react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { startChallenge } from "@/app/actions/season-transition"
+import {
+  startChallenge,
+  startInterestVoting,
+} from "@/app/actions/season-transition"
+import { submitInterestVote } from "@/app/actions/interest-vote"
 import type {
   AnimeProposal,
   Club,
   ClubMember,
+  InterestVote,
   Membership,
   Season,
   SeasonChallenge,
@@ -21,6 +26,7 @@ interface HomeScreenProps {
   members: ClubMember[]
   proposal: AnimeProposal | null
   challenge: SeasonChallenge | null
+  interestVote: InterestVote | null
   memberCount: number
   proposalCount: number
 }
@@ -32,12 +38,17 @@ export function HomeScreen({
   members,
   proposal,
   challenge,
+  interestVote,
   memberCount,
   proposalCount,
 }: HomeScreenProps) {
   const router = useRouter()
   const [startError, setStartError] = useState<string | null>(null)
   const [isStartingChallenge, setIsStartingChallenge] = useState(false)
+  const [isStartingVoting, setIsStartingVoting] = useState(false)
+  const [voteScore, setVoteScore] = useState(interestVote?.score ?? 7)
+  const [voteError, setVoteError] = useState<string | null>(null)
+  const [isSubmittingVote, setIsSubmittingVote] = useState(false)
 
   async function handleStartChallenge() {
     if (!season?.id) {
@@ -62,6 +73,52 @@ export function HomeScreen({
     }
   }
 
+  async function handleStartInterestVoting() {
+    if (!season?.id) {
+      setStartError("No active season found.")
+      return
+    }
+
+    setStartError(null)
+    setIsStartingVoting(true)
+
+    try {
+      await startInterestVoting(season.id)
+      router.refresh()
+    } catch (error) {
+      setStartError(
+        error instanceof Error
+          ? error.message
+          : "Unable to start interest voting."
+      )
+    } finally {
+      setIsStartingVoting(false)
+    }
+  }
+
+  async function handleSubmitInterestVote() {
+    if (!season?.id) {
+      setVoteError("No active season found.")
+      return
+    }
+
+    setVoteError(null)
+    setIsSubmittingVote(true)
+
+    try {
+      await submitInterestVote(season.id, voteScore)
+      router.refresh()
+    } catch (error) {
+      setVoteError(
+        error instanceof Error
+          ? error.message
+          : "Unable to submit interest vote."
+      )
+    } finally {
+      setIsSubmittingVote(false)
+    }
+  }
+
   function renderSeasonStatusContent() {
     if (!season) {
       return (
@@ -75,47 +132,157 @@ export function HomeScreen({
 
     if (season.status === "CHALLENGE") {
       return (
-        <div className="glass rounded-2xl p-4 border border-[#8B5CF6]/30">
-          <p className="text-xs text-white/50 mb-2">
-            Your Secret Challenge
-          </p>
+        <div className="space-y-3">
+          <div className="glass rounded-2xl p-4 border border-[#8B5CF6]/30">
+            <p className="text-xs text-white/50 mb-2">
+              Your Secret Challenge
+            </p>
 
-          {challenge ? (
-            <>
-              {challenge.anime?.image_url && (
-                <div
-                  className="h-40 rounded-2xl bg-cover bg-center mb-4 border border-white/10"
-                  style={{
-                    backgroundImage: `url('${challenge.anime.image_url}')`,
-                  }}
-                />
-              )}
+            {challenge ? (
+              <>
+                {challenge.anime?.image_url && (
+                  <div
+                    className="h-40 rounded-2xl bg-cover bg-center mb-4 border border-white/10"
+                    style={{
+                      backgroundImage: `url('${challenge.anime.image_url}')`,
+                    }}
+                  />
+                )}
 
-              <h2 className="text-lg font-bold text-white">
-                {challenge.anime?.title}
-              </h2>
+                <h2 className="text-lg font-bold text-white">
+                  {challenge.anime?.title}
+                </h2>
 
-              <p className="text-sm text-white/60">
-                Watch this anime and get ready to vote your interest.
-              </p>
-
-              {challenge.anime?.episodes && (
-                <p className="text-xs text-white/40 mt-2">
-                  {challenge.anime.episodes} episodes
+                <p className="text-sm text-white/60">
+                  Keep the proposer secret. Next step: everyone will rate their interest.
                 </p>
-              )}
-            </>
-          ) : (
-            <>
-              <h2 className="text-lg font-bold text-white">
-                Challenges are being prepared
-              </h2>
 
-              <p className="text-sm text-white/60">
-                Refresh in a moment if your assignment does not appear yet.
-              </p>
-            </>
+                {challenge.anime?.episodes && (
+                  <p className="text-xs text-white/40 mt-2">
+                    {challenge.anime.episodes} episodes
+                  </p>
+                )}
+              </>
+            ) : (
+              <>
+                <h2 className="text-lg font-bold text-white">
+                  Challenges are being prepared
+                </h2>
+
+                <p className="text-sm text-white/60">
+                  Refresh in a moment if your assignment does not appear yet.
+                </p>
+              </>
+            )}
+          </div>
+
+          {membership.role === "OWNER" && (
+            <button
+              onClick={handleStartInterestVoting}
+              disabled={isStartingVoting}
+              className="w-full rounded-xl bg-purple-600 p-3 font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isStartingVoting
+                ? "Starting Interest Voting..."
+                : "Start Interest Voting"}
+            </button>
           )}
+
+          {startError && (
+            <p className="text-sm text-red-300">
+              {startError}
+            </p>
+          )}
+        </div>
+      )
+    }
+
+    if (season.status === "INTEREST_VOTING") {
+      return (
+        <div className="space-y-3">
+          <div className="glass rounded-2xl p-4 border border-[#F59E0B]/30">
+            <p className="text-xs text-white/50 mb-2">
+              Interest Vote
+            </p>
+
+            {challenge ? (
+              <>
+                {challenge.anime?.image_url && (
+                  <div
+                    className="h-40 rounded-2xl bg-cover bg-center mb-4 border border-white/10"
+                    style={{
+                      backgroundImage: `url('${challenge.anime.image_url}')`,
+                    }}
+                  />
+                )}
+
+                <h2 className="text-lg font-bold text-white">
+                  {challenge.anime?.title}
+                </h2>
+
+                {interestVote ? (
+                  <p className="text-sm text-white/60">
+                    Your current interest score is{" "}
+                    <span className="font-bold text-[#F59E0B]">
+                      {interestVote.score}/10
+                    </span>
+                    .
+                  </p>
+                ) : (
+                  <p className="text-sm text-white/60">
+                    Rate how much you want to watch this anime with the club.
+                  </p>
+                )}
+
+                <div className="mt-4 grid grid-cols-5 gap-2">
+                  {Array.from({ length: 10 }, (_, index) => index + 1).map(
+                    (score) => (
+                      <button
+                        key={score}
+                        onClick={() => setVoteScore(score)}
+                        className={cn(
+                          "h-10 rounded-xl border text-sm font-bold transition-colors",
+                          voteScore === score
+                            ? "border-[#F59E0B] bg-[#F59E0B] text-[#0F172A]"
+                            : "border-white/10 bg-white/5 text-white/70"
+                        )}
+                      >
+                        {score}
+                      </button>
+                    )
+                  )}
+                </div>
+
+                <button
+                  onClick={handleSubmitInterestVote}
+                  disabled={isSubmittingVote}
+                  className="mt-4 w-full rounded-xl bg-[#F59E0B] p-3 font-bold text-[#0F172A] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isSubmittingVote
+                    ? "Saving Vote..."
+                    : interestVote
+                      ? "Update Vote"
+                      : "Submit Vote"}
+                </button>
+
+                {voteError && (
+                  <p className="mt-3 text-sm text-red-300">
+                    {voteError}
+                  </p>
+                )}
+              </>
+            ) : (
+              <>
+                <h2 className="text-lg font-bold text-white">
+                  No challenge found
+                </h2>
+
+                <p className="text-sm text-white/60">
+                  Ask the owner to check the season assignments.
+                </p>
+              </>
+            )}
+          </div>
         </div>
       )
     }

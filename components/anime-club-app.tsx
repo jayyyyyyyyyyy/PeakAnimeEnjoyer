@@ -11,6 +11,7 @@ import type {
   AnimeProposal,
   Club,
   ClubMember,
+  InterestVote,
   Membership,
   Season,
   SeasonChallenge,
@@ -23,6 +24,7 @@ interface AnimeClubAppProps {
   members: ClubMember[]
   proposal: AnimeProposal | null
   challenge: SeasonChallenge | null
+  interestVote: InterestVote | null
   memberCount: number
   proposalCount: number
 }
@@ -34,6 +36,7 @@ export default function AnimeClubApp({
   members,
   proposal,
   challenge,
+  interestVote,
   memberCount,
   proposalCount,
 }: AnimeClubAppProps) {
@@ -60,6 +63,7 @@ export default function AnimeClubApp({
             members={members}
             proposal={proposal}
             challenge={challenge}
+            interestVote={interestVote}
             memberCount={memberCount}
             proposalCount={proposalCount}
           />

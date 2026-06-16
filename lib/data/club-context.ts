@@ -83,6 +83,7 @@ export async function getClubContext(
       members: members ?? [],
       proposal: null,
       challenge: null,
+      interestVote: null,
       memberCount: memberCount ?? 0,
       proposalCount: 0,
     }
@@ -125,6 +126,13 @@ export async function getClubContext(
     .eq("receiver_user_id", user.id)
     .maybeSingle()
 
+  const { data: interestVote } = await supabase
+    .from("interest_votes")
+    .select("*")
+    .eq("season_id", season.id)
+    .eq("user_id", user.id)
+    .maybeSingle()
+
   return {
     user,
     club,
@@ -133,6 +141,7 @@ export async function getClubContext(
     members: members ?? [],
     proposal,
     challenge,
+    interestVote,
     memberCount: memberCount ?? 0,
     proposalCount: proposalCount ?? 0,
   }

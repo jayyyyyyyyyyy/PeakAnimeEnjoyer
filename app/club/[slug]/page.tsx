@@ -31,6 +31,7 @@ export default async function ClubPage({
       members={context.members ?? []}
       proposal={context.proposal}
       challenge={context.challenge}
+      interestVote={context.interestVote}
       memberCount={context.memberCount}
       proposalCount={context.proposalCount}
     />

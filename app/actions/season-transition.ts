@@ -159,3 +159,81 @@ export async function startChallenge(
 
   return data
 }
+
+export async function startInterestVoting(
+  seasonId: string
+) {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    throw new Error("Unauthorized")
+  }
+
+  const { data: season } = await supabase
+    .from("seasons")
+    .select("*")
+    .eq("id", seasonId)
+    .single()
+
+  if (!season) {
+    throw new Error("Season not found")
+  }
+
+  if (season.status !== "CHALLENGE") {
+    throw new Error("Season is not in challenge phase")
+  }
+
+  const { data: membership } = await supabase
+    .from("club_members")
+    .select("role")
+    .eq("club_id", season.club_id)
+    .eq("user_id", user.id)
+    .single()
+
+  if (membership?.role !== "OWNER") {
+    throw new Error("Only the club owner can start interest voting")
+  }
+
+  const { count: memberCount } = await supabase
+    .from("club_members")
+    .select("*", {
+      count: "exact",
+      head: true,
+    })
+    .eq("club_id", season.club_id)
+
+  const { count: challengeCount } = await supabase
+    .from("season_challenges")
+    .select("*", {
+      count: "exact",
+      head: true,
+    })
+    .eq("season_id", seasonId)
+
+  if (
+    !memberCount ||
+    !challengeCount ||
+    challengeCount !== memberCount
+  ) {
+    throw new Error("All challenges must exist before interest voting")
+  }
+
+  const { data, error } = await supabase
+    .from("seasons")
+    .update({
+      status: "INTEREST_VOTING",
+    })
+    .eq("id", seasonId)
+    .select("id,status")
+    .single()
+
+  if (error || !data) {
+    throw new Error("Failed to start interest voting")
+  }
+
+  return data
+}

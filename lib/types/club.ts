@@ -74,3 +74,11 @@ export interface SeasonChallenge {
     episodes: number | null
   } | null
 }
+
+export interface InterestVote {
+  id: string
+  season_id: string
+  user_id: string
+  anime_id: string
+  score: number
+}
