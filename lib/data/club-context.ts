@@ -111,20 +111,25 @@ export async function getClubContext(
     })
     .eq("season_id", season.id)
 
-  const { data: challenge } = await supabase
-    .from("season_challenges")
-    .select(`
-      *,
-      anime:anime_id (
-        id,
-        title,
-        image_url,
-        episodes
-      )
-    `)
-    .eq("season_id", season.id)
-    .eq("receiver_user_id", user.id)
-    .maybeSingle()
+const { data: challenge } = await supabase
+  .from("season_challenges")
+  .select(`
+    *
+  `)
+  .eq("season_id", season.id)
+  .maybeSingle()
+
+  let challengeWinner = null
+
+if (challenge?.winner_user_id) {
+  const { data } = await supabase
+    .from("profiles")
+    .select("id,username")
+    .eq("id", challenge.winner_user_id)
+    .single()
+
+  challengeWinner = data
+}
 
   const { data: interestVote } = await supabase
     .from("interest_votes")
@@ -133,16 +138,17 @@ export async function getClubContext(
     .eq("user_id", user.id)
     .maybeSingle()
 
-  return {
-    user,
-    club,
-    membership,
-    season,
-    members: members ?? [],
-    proposal,
-    challenge,
-    interestVote,
-    memberCount: memberCount ?? 0,
-    proposalCount: proposalCount ?? 0,
-  }
+return {
+  user,
+  club,
+  membership,
+  season,
+  members: members ?? [],
+  proposal,
+  challenge,
+  challengeWinner,
+  interestVote,
+  memberCount: memberCount ?? 0,
+  proposalCount: proposalCount ?? 0,
+}
 }

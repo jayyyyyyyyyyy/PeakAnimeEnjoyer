@@ -29,6 +29,7 @@ interface HomeScreenProps {
   interestVote: InterestVote | null
   memberCount: number
   proposalCount: number
+  challengeWinner: any
 }
 
 export function HomeScreen({
@@ -41,6 +42,7 @@ export function HomeScreen({
   interestVote,
   memberCount,
   proposalCount,
+  challengeWinner,
 }: HomeScreenProps) {
   const router = useRouter()
   const [startError, setStartError] = useState<string | null>(null)

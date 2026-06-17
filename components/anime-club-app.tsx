@@ -23,10 +23,11 @@ interface AnimeClubAppProps {
   season: Season | null
   members: ClubMember[]
   proposal: AnimeProposal | null
-  challenge: SeasonChallenge | null
+  challenge: any
   interestVote: InterestVote | null
   memberCount: number
   proposalCount: number
+challengeWinner: any
 }
 
 export default function AnimeClubApp({
@@ -39,6 +40,7 @@ export default function AnimeClubApp({
   interestVote,
   memberCount,
   proposalCount,
+  challengeWinner,
 }: AnimeClubAppProps) {
   const [activeTab, setActiveTab] = useState("home")
   const [showActionModal, setShowActionModal] = useState(false)
@@ -62,10 +64,11 @@ export default function AnimeClubApp({
             season={season}
             members={members}
             proposal={proposal}
-            challenge={challenge}
-            interestVote={interestVote}
             memberCount={memberCount}
             proposalCount={proposalCount}
+            challenge={challenge}
+            challengeWinner={challengeWinner}
+            interestVote={interestVote}
           />
         )}
 
