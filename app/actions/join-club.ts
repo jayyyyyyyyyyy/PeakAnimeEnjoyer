@@ -32,7 +32,7 @@ export async function joinClub(
     .select("*")
     .eq("club_id", club.id)
     .eq("user_id", user.id)
-    .single()
+    .maybeSingle()
 
   if (existingMember) {
     return club

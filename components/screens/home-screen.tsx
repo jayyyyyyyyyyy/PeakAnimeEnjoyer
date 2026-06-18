@@ -75,6 +75,10 @@ export function HomeScreen({
     }
   }
 
+  console.log("CHALLENGE:", challenge)
+  console.log("CHALLENGE WINNER:", challengeWinner)
+  console.log("SEASON STATUS:", season?.status)
+
   async function handleStartInterestVoting() {
     if (!season?.id) {
       setStartError("No active season found.")

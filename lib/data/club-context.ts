@@ -86,6 +86,7 @@ export async function getClubContext(
       interestVote: null,
       memberCount: memberCount ?? 0,
       proposalCount: 0,
+      challengeWinner: null,
     }
   }
 
