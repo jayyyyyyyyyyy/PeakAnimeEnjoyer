@@ -34,6 +34,7 @@ export default async function ClubPage({
       interestVote={context.interestVote}
       memberCount={context.memberCount}
       proposalCount={context.proposalCount}
+      challengeWinner={context.challengeWinner}
     />
   )
 }
