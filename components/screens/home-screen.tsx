@@ -76,8 +76,8 @@ export function HomeScreen({
   }
 
   console.log("CHALLENGE:", challenge)
-  console.log("CHALLENGE WINNER:", challengeWinner)
-  console.log("SEASON STATUS:", season?.status)
+  console.log("STATUS:", season?.status)
+  console.log("SELECTED:", season?.selected_anime_id)
 
   async function handleStartInterestVoting() {
     if (!season?.id) {
@@ -146,26 +146,26 @@ export function HomeScreen({
 
             {challenge ? (
               <>
-                {challenge.anime?.image_url && (
+                {season?.anime?.image_url && (
                   <div
                     className="h-40 rounded-2xl bg-cover bg-center mb-4 border border-white/10"
                     style={{
-                      backgroundImage: `url('${challenge.anime.image_url}')`,
+                      backgroundImage: `url('${season?.anime.image_url}')`,
                     }}
                   />
                 )}
 
                 <h2 className="text-lg font-bold text-white">
-                  {challenge.anime?.title}
+                  {season?.anime?.title}
                 </h2>
 
                 <p className="text-sm text-white/60">
                   Keep the proposer secret. Next step: everyone will rate their interest.
                 </p>
 
-                {challenge.anime?.episodes && (
+                {season?.anime?.episodes && (
                   <p className="text-xs text-white/40 mt-2">
-                    {challenge.anime.episodes} episodes
+                    {season?.anime.episodes} episodes
                   </p>
                 )}
               </>
@@ -213,17 +213,17 @@ export function HomeScreen({
 
             {challenge ? (
               <>
-                {challenge.anime?.image_url && (
+                {season?.anime?.image_url && (
                   <div
                     className="h-40 rounded-2xl bg-cover bg-center mb-4 border border-white/10"
                     style={{
-                      backgroundImage: `url('${challenge.anime.image_url}')`,
+                      backgroundImage: `url('${season?.anime.image_url}')`,
                     }}
                   />
                 )}
 
                 <h2 className="text-lg font-bold text-white">
-                  {challenge.anime?.title}
+                  {season?.anime?.title}
                 </h2>
 
                 {interestVote ? (
@@ -382,62 +382,64 @@ export function HomeScreen({
         </div>
       </header>
 
+      {season?.status === "REVEALED" && challenge && (
+  <div className="glass rounded-2xl p-4 border border-yellow-500/30">
+    <p className="text-xs text-white/50 mb-2">
+      Challenge Winner
+    </p>
+
+    <h2 className="text-lg font-bold text-white">
+      {challenge.winner?.username}
+    </h2>
+
+    <p className="text-sm text-yellow-400">
+      {challenge.method}
+    </p>
+  </div>
+)}
+
       {renderSeasonStatusContent()}
 
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1E293B] to-[#0F172A] border border-white/10">
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A] via-transparent to-transparent z-10" />
+      {season?.anime && (
+  <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1E293B] to-[#0F172A] border border-white/10">
+    <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A] via-transparent to-transparent z-10" />
 
-        <div
-          className="h-48 bg-cover bg-center"
-          style={{
-            backgroundImage:
-              "url('https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800&auto=format&fit=crop&q=60')",
-          }}
-        />
+    <div
+      className="h-48 bg-cover bg-center"
+      style={{
+        backgroundImage: season.anime.image_url
+          ? `url(${season.anime.image_url})`
+          : "url('https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800&auto=format&fit=crop&q=60')",
+      }}
+    />
 
-        <div className="relative z-20 p-4 -mt-16">
-          <div className="flex gap-2 mb-2">
-            <span className="px-2 py-0.5 text-xs rounded-full bg-[#8B5CF6]/20 text-[#8B5CF6] border border-[#8B5CF6]/30">
-              Fantasy
-            </span>
+    <div className="relative z-20 p-4 -mt-16">
+      <h2 className="text-2xl font-bold text-white mb-1">
+        {season.anime.title}
+      </h2>
 
-            <span className="px-2 py-0.5 text-xs rounded-full bg-[#F59E0B]/20 text-[#F59E0B] border border-[#F59E0B]/30">
-              Adventure
-            </span>
-          </div>
+      <p className="text-sm text-white/60 mb-4">
+        Selected Anime
+      </p>
 
-          <h2 className="text-2xl font-bold text-white mb-1">
-            Frieren
-          </h2>
+      <div className="glass rounded-2xl p-4 border border-white/10">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-sm text-white/70">
+            Episodes
+          </span>
 
-          <p className="text-sm text-white/60 mb-4">
-            Beyond Journey&apos;s End
-          </p>
-
-          <div className="glass rounded-2xl p-4 border border-white/10">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm text-white/70">
-                Club Progress
-              </span>
-
-              <span className="text-2xl font-bold text-[#F59E0B]">
-                57%
-              </span>
-            </div>
-
-            <div className="h-3 rounded-full bg-[#0F172A] overflow-hidden mb-2">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-[#8B5CF6] to-[#F59E0B]"
-                style={{ width: "57%" }}
-              />
-            </div>
-
-            <p className="text-xs text-white/50">
-              16 / 28 episodes required
-            </p>
-          </div>
+          <span className="text-2xl font-bold text-[#F59E0B]">
+            {season.anime.episodes ?? "?"}
+          </span>
         </div>
+
+        <p className="text-xs text-white/50">
+          Total episodes
+        </p>
       </div>
+    </div>
+  </div>
+)}
 
       <div className="space-y-3">
         <h3 className="text-lg font-semibold text-white flex items-center gap-2">

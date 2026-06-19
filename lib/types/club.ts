@@ -64,15 +64,14 @@ export interface AnimeProposal {
 export interface SeasonChallenge {
   id: string
   season_id: string
-  giver_user_id: string
-  receiver_user_id: string
-  anime_id: string
-  anime?: {
-    id: string
-    title: string
-    image_url: string | null
-    episodes: number | null
-  } | null
+  winner_user_id: string
+  method: string
+  notes: string | null
+  created_at: string
+
+  winner?: {
+    username: string
+  }
 }
 
 export interface InterestVote {

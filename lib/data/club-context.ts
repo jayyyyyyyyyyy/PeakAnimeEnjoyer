@@ -115,7 +115,10 @@ export async function getClubContext(
 const { data: challenge } = await supabase
   .from("season_challenges")
   .select(`
-    *
+    *,
+    winner:winner_user_id (
+      username
+    )
   `)
   .eq("season_id", season.id)
   .maybeSingle()
