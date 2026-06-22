@@ -51,3 +51,36 @@ export async function createClub(
 
   return club
 }
+
+export async function getUserClubs() {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    throw new Error("Unauthorized")
+  }
+
+  const { data, error } = await supabase
+    .from("club_members")
+    .select(`
+      role,
+      clubs (
+        id,
+        name,
+        slug,
+        invite_code
+      )
+    `)
+    .eq("user_id", user.id)
+
+  if (error) {
+    throw new Error(
+      `Failed to load clubs: ${error.message}`
+    )
+  }
+
+  return data ?? []
+}
