@@ -1,9 +1,10 @@
 "use client"
 
 import { Clock, Sparkles, Users } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect  } from "react"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { startSeason } from "@/app/actions/season-transition"
 import {
   startChallenge,
   startInterestVoting,
@@ -18,6 +19,7 @@ import type {
   Season,
   SeasonChallenge,
 } from "@/lib/types/club"
+import { updateEpisodeProgress } from "@/app/actions/progress"
 
 interface HomeScreenProps {
   club: Club
@@ -30,6 +32,7 @@ interface HomeScreenProps {
   memberCount: number
   proposalCount: number
   challengeWinner: any
+  progress: any
 }
 
 export function HomeScreen({
@@ -43,6 +46,7 @@ export function HomeScreen({
   memberCount,
   proposalCount,
   challengeWinner,
+  progress,
 }: HomeScreenProps) {
   const router = useRouter()
   const [startError, setStartError] = useState<string | null>(null)
@@ -51,6 +55,9 @@ export function HomeScreen({
   const [voteScore, setVoteScore] = useState(interestVote?.score ?? 7)
   const [voteError, setVoteError] = useState<string | null>(null)
   const [isSubmittingVote, setIsSubmittingVote] = useState(false)
+
+const [episodesWatched, setEpisodesWatched] =
+  useState(progress?.episodes_watched ?? 0)
 
   async function handleStartChallenge() {
     if (!season?.id) {
@@ -74,6 +81,21 @@ export function HomeScreen({
       setIsStartingChallenge(false)
     }
   }
+  async function handleStartSeason() {
+  try {
+    await startSeason(season!.id)
+
+    window.location.reload()
+  } catch (error) {
+    console.error(error)
+
+    alert(
+      error instanceof Error
+        ? error.message
+        : "Failed to start season"
+    )
+  }
+}
 
   console.log("CHALLENGE:", challenge)
   console.log("STATUS:", season?.status)
@@ -124,6 +146,25 @@ export function HomeScreen({
       setIsSubmittingVote(false)
     }
   }
+
+  async function handleSaveProgress() {
+  try {
+    await updateEpisodeProgress(
+      season!.id,
+      episodesWatched
+    )
+
+    alert("Progress saved!")
+  } catch (error) {
+    console.error(error)
+
+    alert(
+      error instanceof Error
+        ? error.message
+        : "Failed to save progress"
+    )
+  }
+}
 
   function renderSeasonStatusContent() {
     if (!season) {
@@ -395,8 +436,17 @@ export function HomeScreen({
     <p className="text-sm text-yellow-400">
       {challenge.method}
     </p>
+    {membership.role === "OWNER" && (
+    <button
+    onClick={handleStartSeason}
+    className="mt-4 w-full rounded-xl bg-green-600 p-3 font-bold text-white"
+    >
+      Start Season
+    </button>
+)}
   </div>
 )}
+
 
       {renderSeasonStatusContent()}
 
@@ -438,6 +488,36 @@ export function HomeScreen({
         </p>
       </div>
     </div>
+  </div>
+)}
+
+{season?.status === "ACTIVE" && (
+  <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+    <h2 className="text-xl font-bold text-white mb-4">
+      Your Progress
+    </h2>
+
+    <p className="text-sm text-white/60 mb-2">
+      Episodes watched
+    </p>
+
+    <input
+      type="number"
+      min={0}
+      max={season.anime?.episodes ?? undefined}
+      value={episodesWatched}
+      onChange={(e) =>
+        setEpisodesWatched(Number(e.target.value))
+      }
+      className="w-full rounded-xl bg-slate-800 p-3 text-white"
+    />
+
+<button
+  onClick={handleSaveProgress}
+  className="mt-6 w-full rounded-xl bg-purple-600 hover:bg-purple-500 transition p-4 font-semibold"
+>
+  Save Progress
+</button>
   </div>
 )}
 

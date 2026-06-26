@@ -242,3 +242,60 @@ export async function startInterestVoting(
 
   return data
 }
+export async function startSeason(
+  seasonId: string
+) {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    throw new Error("Unauthorized")
+  }
+
+  const { data: season } = await supabase
+    .from("seasons")
+    .select("*")
+    .eq("id", seasonId)
+    .single()
+
+  if (!season) {
+    throw new Error("Season not found")
+  }
+
+  if (season.status !== "REVEALED") {
+    throw new Error(
+      "Season is not in revealed phase"
+    )
+  }
+
+  const { data: membership } = await supabase
+    .from("club_members")
+    .select("role")
+    .eq("club_id", season.club_id)
+    .eq("user_id", user.id)
+    .single()
+
+  if (membership?.role !== "OWNER") {
+    throw new Error(
+      "Only owner can start season"
+    )
+  }
+
+  const { data, error } = await supabase
+    .from("seasons")
+    .update({
+      status: "ACTIVE",
+    })
+    .eq("id", seasonId)
+    .select("id,status")
+    .single()
+
+  if (error || !data) {
+    throw new Error("Failed to start season")
+  }
+
+  return data
+}

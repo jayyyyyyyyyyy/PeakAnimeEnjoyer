@@ -141,6 +141,13 @@ if (challenge?.winner_user_id) {
     .eq("season_id", season.id)
     .eq("user_id", user.id)
     .maybeSingle()
+    
+  const { data: progress } = await supabase
+    .from("episode_progress")
+    .select("*")
+    .eq("season_id", season.id)
+    .eq("user_id", user.id)
+    .maybeSingle()
 
 return {
   user,
@@ -152,6 +159,7 @@ return {
   challenge,
   challengeWinner,
   interestVote,
+  progress,
   memberCount: memberCount ?? 0,
   proposalCount: proposalCount ?? 0,
 }
