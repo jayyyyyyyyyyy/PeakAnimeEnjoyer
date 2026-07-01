@@ -66,6 +66,29 @@ export async function getClubContext(
     `)
     .eq("club_id", club.id)
 
+  const { data: progressList } = await supabase
+  .from("episode_progress")
+  .select(`
+    user_id,
+    episodes_watched
+  `)
+  .eq("season_id", season.id)
+
+  const clubProgress =
+  members?.map((member) => {
+    const progress = progressList?.find(
+      (p) => p.user_id === member.user_id
+    )
+
+    return {
+      user_id: member.user_id,
+      username:
+        member.profiles?.username ?? "Unknown",
+      episodes_watched:
+        progress?.episodes_watched ?? 0,
+    }
+  }) ?? []
+
   const { count: memberCount } = await supabase
     .from("club_members")
     .select("*", {
@@ -160,6 +183,7 @@ return {
   challengeWinner,
   interestVote,
   progress,
+  clubProgress,
   memberCount: memberCount ?? 0,
   proposalCount: proposalCount ?? 0,
 }

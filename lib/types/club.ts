@@ -31,6 +31,7 @@ export interface Season {
   status: SeasonStatus
   selected_anime_id: string | null
   anime?: SeasonAnime | null
+  minimum_episodes: number
 }
 
 export interface Membership {

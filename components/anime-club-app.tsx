@@ -27,7 +27,9 @@ interface AnimeClubAppProps {
   interestVote: InterestVote | null
   memberCount: number
   proposalCount: number
-challengeWinner: any
+  challengeWinner: any
+  progress: any
+  clubProgress: any
 }
 
 export default function AnimeClubApp({
@@ -41,6 +43,8 @@ export default function AnimeClubApp({
   memberCount,
   proposalCount,
   challengeWinner,
+  progress,
+  clubProgress,
 }: AnimeClubAppProps) {
   const [activeTab, setActiveTab] = useState("home")
   const [showActionModal, setShowActionModal] = useState(false)
@@ -69,6 +73,8 @@ export default function AnimeClubApp({
             challenge={challenge}
             challengeWinner={challengeWinner}
             interestVote={interestVote}
+            progress={progress}
+            clubProgress={clubProgress}
           />
         )}
 
