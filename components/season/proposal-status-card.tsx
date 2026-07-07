@@ -1,5 +1,7 @@
+import type { AnimeProposal } from "@/lib/types/club"
+
 interface ProposalStatusCardProps {
-  proposal: any
+  proposal: AnimeProposal | null
   proposalCount: number
   memberCount: number
   isOwner: boolean

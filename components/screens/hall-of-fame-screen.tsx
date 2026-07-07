@@ -1,142 +1,238 @@
 "use client"
 
-import { Trophy, TrendingDown, Crown, Skull } from "lucide-react"
+import { useState } from "react"
+import { BarChart3, Crown, Trophy } from "lucide-react"
+import type {
+  HallOfFameCategory,
+  HallOfFameEntry,
+  HallOfFameRankings,
+} from "@/lib/types/club"
 import { cn } from "@/lib/utils"
 
-const rankings = [
-  { rank: 1, title: "Frieren", score: 9.4, emoji: "🥇" },
-  { rank: 2, title: "Death Note", score: 9.1, emoji: "🥈" },
-  { rank: 3, title: "Mob Psycho 100", score: 8.8, emoji: "🥉" },
-  { rank: 4, title: "Spy x Family", score: 8.5, emoji: "4️⃣" },
-  { rank: 5, title: "Jujutsu Kaisen", score: 8.3, emoji: "5️⃣" },
+interface HallOfFameScreenProps {
+  rankings: HallOfFameRankings
+}
+
+const categories: Array<{
+  id: HallOfFameCategory
+  label: string
+}> = [
+  { id: "overall", label: "Overall" },
+  { id: "story", label: "Story" },
+  { id: "animation", label: "Visuals" },
+  { id: "characters", label: "Characters" },
+  { id: "soundtrack", label: "Soundtrack" },
+  { id: "worldBuilding", label: "World" },
+  { id: "pacing", label: "Pacing" },
+  { id: "emotionalImpact", label: "Emotion" },
 ]
 
-const hallOfShame = [
-  { title: "Boku no Pico", votes: 4, user: "Fabio", emoji: "💀" },
-  { title: "Mars of Destruction", votes: 3, user: "Luca", emoji: "🤮" },
-]
+function formatScore(score: number) {
+  return score.toFixed(2)
+}
 
-export function HallOfFameScreen() {
+function getMedal(rank: number) {
+  if (rank === 1) return "#1"
+  if (rank === 2) return "#2"
+  if (rank === 3) return "#3"
+  return `#${rank}`
+}
+
+function getCategoryScore(
+  entry: HallOfFameEntry,
+  category: HallOfFameCategory
+) {
+  return entry.averages[category]
+}
+
+function Podium({
+  entries,
+  category,
+}: {
+  entries: HallOfFameEntry[]
+  category: HallOfFameCategory
+}) {
+  const topThree = entries.slice(0, 3)
+
+  if (topThree.length === 0) {
+    return null
+  }
+
+  return (
+    <div className="grid grid-cols-3 items-end gap-2 pt-2">
+      {[topThree[1], topThree[0], topThree[2]].map(
+        (entry, index) => {
+          if (!entry) {
+            return <div key={index} />
+          }
+
+          const rank = entries.indexOf(entry) + 1
+          const isWinner = rank === 1
+
+          return (
+            <div
+              key={entry.seasonId}
+              className="flex flex-col items-center"
+            >
+              {isWinner && (
+                <Crown className="mb-2 h-7 w-7 text-[#F59E0B]" />
+              )}
+
+              <div
+                className={cn(
+                  "flex w-full flex-col justify-end rounded-t-2xl border px-2 pb-3 text-center",
+                  isWinner
+                    ? "h-32 border-[#F59E0B]/40 bg-[#F59E0B]/20"
+                    : rank === 2
+                      ? "h-24 border-[#94A3B8]/30 bg-white/10"
+                      : "h-20 border-[#CD7F32]/30 bg-[#CD7F32]/15"
+                )}
+              >
+                <span className="text-xs font-bold text-white/60">
+                  {getMedal(rank)}
+                </span>
+                <span className="line-clamp-2 text-xs font-bold text-white">
+                  {entry.animeTitle}
+                </span>
+                <span className="text-sm font-black text-[#F59E0B]">
+                  {formatScore(getCategoryScore(entry, category))}
+                </span>
+              </div>
+            </div>
+          )
+        }
+      )}
+    </div>
+  )
+}
+
+export function HallOfFameScreen({
+  rankings,
+}: HallOfFameScreenProps) {
+  const [activeCategory, setActiveCategory] =
+    useState<HallOfFameCategory>("overall")
+  const entries = rankings[activeCategory]
+  const totalWatched = rankings.overall.length
+
   return (
     <div className="pb-24 px-4 space-y-6">
-      {/* Header */}
       <header className="pt-4 text-center">
         <div className="inline-flex items-center gap-2 mb-2">
-          <Trophy className="w-8 h-8 text-[#F59E0B]" />
-          <h1 className="text-2xl font-bold gradient-text">Hall of Fame</h1>
-          <Trophy className="w-8 h-8 text-[#F59E0B]" />
+          <Trophy className="h-8 w-8 text-[#F59E0B]" />
+          <h1 className="text-2xl font-bold gradient-text">
+            Hall of Fame
+          </h1>
         </div>
-        <p className="text-sm text-white/50">The greatest anime our club has watched</p>
+        <p className="text-sm text-white/50">
+          The permanent memory of your club.
+        </p>
       </header>
 
-      {/* Top 3 Podium */}
-      <div className="flex items-end justify-center gap-2 pt-4">
-        {/* Second Place */}
-        <div className="flex flex-col items-center">
-          <div className="text-3xl mb-2">🥈</div>
-          <div className="w-20 h-24 rounded-t-2xl bg-gradient-to-t from-[#94A3B8] to-[#CBD5E1] flex flex-col items-center justify-end pb-3">
-            <span className="text-xs font-bold text-[#0F172A] text-center px-1">Death Note</span>
-            <span className="text-sm font-black text-[#0F172A]">9.1</span>
-          </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+          <p className="text-xs text-white/50">
+            Anime Ranked
+          </p>
+          <p className="mt-1 text-3xl font-black text-white">
+            {totalWatched}
+          </p>
         </div>
-        
-        {/* First Place */}
-        <div className="flex flex-col items-center -mt-4">
-          <div className="relative">
-            <Crown className="w-8 h-8 text-[#F59E0B] animate-float" />
-          </div>
-          <div className="text-4xl mb-2">🥇</div>
-          <div className="w-24 h-32 rounded-t-2xl bg-gradient-to-t from-[#F59E0B] to-[#FCD34D] flex flex-col items-center justify-end pb-3 shadow-lg shadow-[#F59E0B]/30">
-            <span className="text-sm font-bold text-[#0F172A] text-center px-1">Frieren</span>
-            <span className="text-lg font-black text-[#0F172A]">9.4</span>
-          </div>
-        </div>
-        
-        {/* Third Place */}
-        <div className="flex flex-col items-center">
-          <div className="text-3xl mb-2">🥉</div>
-          <div className="w-20 h-20 rounded-t-2xl bg-gradient-to-t from-[#CD7F32] to-[#DDA15E] flex flex-col items-center justify-end pb-3">
-            <span className="text-xs font-bold text-[#0F172A] text-center px-1">Mob Psycho</span>
-            <span className="text-sm font-black text-[#0F172A]">8.8</span>
-          </div>
+
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+          <p className="text-xs text-white/50">
+            Current Ranking
+          </p>
+          <p className="mt-1 text-lg font-bold text-[#F59E0B]">
+            {categories.find(
+              (category) => category.id === activeCategory
+            )?.label}
+          </p>
         </div>
       </div>
 
-      {/* Full Rankings */}
-      <div className="space-y-3">
-        <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-          <span>📊</span> Full Rankings
-        </h3>
-        {rankings.map((item) => (
-          <div
-            key={item.rank}
+      <div className="flex gap-2 overflow-x-auto pb-1">
+        {categories.map((category) => (
+          <button
+            key={category.id}
+            onClick={() => setActiveCategory(category.id)}
             className={cn(
-              "glass rounded-2xl p-4 border border-white/10 flex items-center gap-4 transition-all",
-              item.rank === 1 && "border-[#F59E0B]/30 bg-[#F59E0B]/5",
-              item.rank === 2 && "border-[#94A3B8]/30",
-              item.rank === 3 && "border-[#CD7F32]/30"
+              "shrink-0 rounded-xl border px-3 py-2 text-sm font-semibold transition",
+              activeCategory === category.id
+                ? "border-[#F59E0B] bg-[#F59E0B] text-[#0F172A]"
+                : "border-white/10 bg-white/5 text-white/70"
             )}
           >
-            <div className="text-2xl">{item.emoji}</div>
-            <div className="flex-1">
-              <p className="font-semibold text-white">{item.title}</p>
-              <p className="text-xs text-white/50">Season {item.rank}</p>
-            </div>
-            <div className={cn(
-              "px-3 py-1.5 rounded-xl font-bold",
-              item.rank === 1 && "bg-[#F59E0B]/20 text-[#F59E0B]",
-              item.rank === 2 && "bg-[#94A3B8]/20 text-[#94A3B8]",
-              item.rank === 3 && "bg-[#CD7F32]/20 text-[#CD7F32]",
-              item.rank > 3 && "bg-[#8B5CF6]/20 text-[#8B5CF6]"
-            )}>
-              {item.score}
-            </div>
-          </div>
+            {category.label}
+          </button>
         ))}
       </div>
 
-      {/* MVP Card */}
-      <div className="relative overflow-hidden rounded-3xl">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#8B5CF6] via-[#F59E0B] to-[#8B5CF6] animate-shimmer" />
-        <div className="absolute inset-[2px] rounded-3xl bg-[#1E293B]" />
-        <div className="relative p-5 flex items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#8B5CF6] to-[#F59E0B] flex items-center justify-center text-3xl">
-            🏆
-          </div>
-          <div>
-            <p className="text-sm text-white/60">MVP of the Club</p>
-            <p className="text-xl font-bold text-white">Marco</p>
-            <p className="text-xs text-[#F59E0B]">3 winning proposals • Perfect attendance</p>
-          </div>
+      {entries.length === 0 ? (
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-center">
+          <BarChart3 className="mx-auto h-10 w-10 text-white/40" />
+          <h2 className="mt-4 text-xl font-bold text-white">
+            No revealed reviews yet
+          </h2>
+          <p className="mt-2 text-sm text-white/60">
+            Finished seasons will appear here after the owner reveals the reviews.
+          </p>
         </div>
-      </div>
+      ) : (
+        <>
+          <Podium
+            entries={entries}
+            category={activeCategory}
+          />
 
-      {/* Hall of Shame */}
-      <div className="space-y-3">
-        <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-          <Skull className="w-5 h-5 text-[#EF4444]" />
-          <span>Hall of Shame</span>
-          <span className="text-xl">😈</span>
-        </h3>
-        <p className="text-xs text-white/50">The proposals we&apos;d rather forget...</p>
-        
-        {hallOfShame.map((item, index) => (
-          <div
-            key={index}
-            className="glass rounded-2xl p-4 border border-[#EF4444]/20 bg-[#EF4444]/5 flex items-center gap-4"
-          >
-            <div className="text-2xl">{item.emoji}</div>
-            <div className="flex-1">
-              <p className="font-semibold text-white">{item.title}</p>
-              <p className="text-xs text-white/50">Proposed by {item.user}</p>
-            </div>
-            <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-[#EF4444]/20">
-              <TrendingDown className="w-4 h-4 text-[#EF4444]" />
-              <span className="text-sm font-bold text-[#EF4444]">{item.votes}</span>
-            </div>
+          <div className="space-y-3">
+            <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
+              <BarChart3 className="h-5 w-5 text-[#F59E0B]" />
+              Rankings
+            </h2>
+
+            {entries.map((entry, index) => {
+              const rank = index + 1
+              const score = getCategoryScore(
+                entry,
+                activeCategory
+              )
+
+              return (
+                <div
+                  key={entry.seasonId}
+                  className={cn(
+                    "rounded-2xl border border-white/10 bg-white/5 p-4",
+                    rank === 1 &&
+                      "border-[#F59E0B]/40 bg-[#F59E0B]/10"
+                  )}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#0F172A] font-black text-[#F59E0B]">
+                      {getMedal(rank)}
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-semibold text-white">
+                        {entry.animeTitle}
+                      </p>
+                      <p className="text-xs text-white/50">
+                        {entry.reviewCount} reviews
+                        {entry.episodes
+                          ? ` � ${entry.episodes} episodes`
+                          : ""}
+                      </p>
+                    </div>
+
+                    <div className="rounded-xl bg-[#8B5CF6]/20 px-3 py-1.5 font-bold text-[#C4B5FD]">
+                      {formatScore(score)}
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
           </div>
-        ))}
-      </div>
+        </>
+      )}
     </div>
   )
 }

@@ -1,18 +1,25 @@
+import type {
+  AnimeProposal,
+  InterestVote,
+  Membership,
+  Season,
+  SeasonChallenge,
+} from "@/lib/types/club"
 import { ProposalStatusCard } from "./proposal-status-card"
 import { ChallengeStatusCard } from "./challenge-status-card"
 import { InterestVotingCard } from "./interest-voting-card"
 
 interface SeasonStatusCardProps {
-  season: any
-  membership: any
+  season: Season | null
+  membership: Membership
 
-  proposal: any
+  proposal: AnimeProposal | null
   proposalCount: number
   memberCount: number
 
-  challenge: any
+  challenge: SeasonChallenge | null
 
-  interestVote: any
+  interestVote: InterestVote | null
   voteScore: number
   setVoteScore: (score: number) => void
 

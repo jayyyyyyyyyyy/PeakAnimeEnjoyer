@@ -1,9 +1,14 @@
+import type {
+  InterestVote,
+  Season,
+  SeasonChallenge,
+} from "@/lib/types/club"
 import { cn } from "@/lib/utils"
 
 interface InterestVotingCardProps {
-  challenge: any
-  season: any
-  interestVote: any
+  challenge: SeasonChallenge | null
+  season: Season
+  interestVote: InterestVote | null
   voteScore: number
   setVoteScore: (score: number) => void
   handleSubmitInterestVote: () => void

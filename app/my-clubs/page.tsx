@@ -1,8 +1,28 @@
 import Link from "next/link"
 import { getUserClubs } from "@/app/actions/clubs"
+import type { Club, ClubRole } from "@/lib/types/club"
+
+type UserClub = Pick<
+  Club,
+  "id" | "name" | "slug" | "invite_code"
+>
+
+interface UserClubMembership {
+  role: ClubRole
+  clubs: UserClub | UserClub[]
+}
+
+function getMembershipClub(
+  membership: UserClubMembership
+): UserClub | null {
+  return Array.isArray(membership.clubs)
+    ? membership.clubs[0] ?? null
+    : membership.clubs
+}
 
 export default async function MyClubsPage() {
-  const memberships = await getUserClubs()
+  const memberships =
+    (await getUserClubs()) as unknown as UserClubMembership[]
 
   return (
     <main className="min-h-screen bg-[#0F172A] text-white p-6">
@@ -27,8 +47,10 @@ export default async function MyClubsPage() {
       </div>
 
       <div className="space-y-4">
-        {memberships.map((membership: any) => {
-          const club = membership.clubs
+        {memberships.map((membership) => {
+          const club = getMembershipClub(membership)
+
+          if (!club) return null
 
           return (
             <Link

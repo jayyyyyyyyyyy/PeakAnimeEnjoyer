@@ -1,6 +1,8 @@
+import type { Season, SeasonChallenge } from "@/lib/types/club"
+
 interface ChallengeStatusCardProps {
-  challenge: any
-  season: any
+  challenge: SeasonChallenge | null
+  season: Season
   isOwner: boolean
   isStartingVoting: boolean
   startError: string | null
@@ -31,7 +33,6 @@ export function ChallengeStatusCard({
                   backgroundImage: `url('${season.anime.image_url}')`,
                 }}
               />
-
             )}
 
             <h2 className="text-lg font-bold text-white">

@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { Home, Tv, Plus, Trophy, User } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -77,3 +76,4 @@ export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
     </nav>
   )
 }
+

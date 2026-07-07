@@ -34,9 +34,12 @@ export default async function ClubPage({
       interestVote={context.interestVote}
       memberCount={context.memberCount}
       proposalCount={context.proposalCount}
-      challengeWinner={context.challengeWinner}
       progress={context.progress}
       clubProgress={context.clubProgress}
+      reviewSummary={context.reviewSummary}
+      hallOfFameRankings={context.hallOfFameRankings}
+      profileStats={context.profileStats}
     />
   )
 }
+

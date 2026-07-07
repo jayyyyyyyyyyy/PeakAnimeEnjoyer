@@ -11,8 +11,13 @@ import type {
   AnimeProposal,
   Club,
   ClubMember,
+  ClubProgressMember,
+  EpisodeProgress,
+  HallOfFameRankings,
   InterestVote,
   Membership,
+  ProfileStats,
+  ReviewSummary,
   Season,
   SeasonChallenge,
 } from "@/lib/types/club"
@@ -23,13 +28,15 @@ interface AnimeClubAppProps {
   season: Season | null
   members: ClubMember[]
   proposal: AnimeProposal | null
-  challenge: any
+  challenge: SeasonChallenge | null
   interestVote: InterestVote | null
   memberCount: number
   proposalCount: number
-  challengeWinner: any
-  progress: any
-  clubProgress: any
+  progress: EpisodeProgress | null
+  clubProgress: ClubProgressMember[]
+  reviewSummary: ReviewSummary
+  hallOfFameRankings: HallOfFameRankings
+  profileStats: ProfileStats
 }
 
 export default function AnimeClubApp({
@@ -42,9 +49,11 @@ export default function AnimeClubApp({
   interestVote,
   memberCount,
   proposalCount,
-  challengeWinner,
   progress,
   clubProgress,
+  reviewSummary,
+  hallOfFameRankings,
+  profileStats,
 }: AnimeClubAppProps) {
   const [activeTab, setActiveTab] = useState("home")
   const [showActionModal, setShowActionModal] = useState(false)
@@ -71,18 +80,22 @@ export default function AnimeClubApp({
             memberCount={memberCount}
             proposalCount={proposalCount}
             challenge={challenge}
-            challengeWinner={challengeWinner}
             interestVote={interestVote}
             progress={progress}
             clubProgress={clubProgress}
+            reviewSummary={reviewSummary}
           />
         )}
 
         {activeTab === "season" && <SeasonScreen />}
 
-        {activeTab === "hall" && <HallOfFameScreen />}
+        {activeTab === "hall" && (
+          <HallOfFameScreen rankings={hallOfFameRankings} />
+        )}
 
-        {activeTab === "profile" && <ProfileScreen />}
+        {activeTab === "profile" && (
+          <ProfileScreen profileStats={profileStats} />
+        )}
       </div>
 
       <BottomNav
@@ -98,3 +111,4 @@ export default function AnimeClubApp({
     </main>
   )
 }
+

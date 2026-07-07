@@ -91,7 +91,7 @@ console.log("LANDING USER:", user)
             </h2>
 
             <p className="text-white/60">
-              Track seasons, ratings and your club's
+              Track seasons, ratings and your club&apos;s
               favourite anime.
             </p>
           </div>
