@@ -18,8 +18,8 @@ export function AnimeCard({
   if (!season?.anime) return null
 
   return (
-    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1E293B] to-[#0F172A] border border-white/10">
-      <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A] via-transparent to-transparent z-10" />
+    <div className="relative overflow-hidden rounded-3xl border border-pink-500/15 bg-gradient-to-br from-white/[0.06] to-white/[0.02] backdrop-blur-2xl shadow-[0_0_50px_rgba(236,72,153,.08)]">
+      <div className="absolute inset-0 bg-gradient-to-t from-[#090B14] via-transparent to-transparent z-10" />
 
       <div
         className="h-48 bg-cover bg-center"
@@ -39,7 +39,7 @@ export function AnimeCard({
           Selected Anime
         </p>
 
-        <div className="glass rounded-2xl p-4 border border-white/10">
+        <div className="rounded-2xl border border-pink-500/15 bg-white/[0.04] backdrop-blur-xl p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-white/70">
@@ -56,7 +56,7 @@ export function AnimeCard({
                 Season Goal
               </p>
 
-              <p className="text-2xl font-bold text-[#F59E0B]">
+              <p className="text-2xl font-bold text-pink-400">
                 {season.minimum_episodes}
               </p>
             </div>
@@ -64,20 +64,20 @@ export function AnimeCard({
         </div>
 
         {season.status === "ACTIVE" && (
-          <div className="glass rounded-2xl p-4 border border-white/10 mt-4">
+          <div className="rounded-2xl border border-pink-500/15 bg-white/[0.04] backdrop-blur-xl p-4 mt-4">
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm text-white/70">
                 Your Progress
               </span>
 
-              <span className="text-lg font-bold text-[#8B5CF6]">
+              <span className="text-lg font-bold text-pink-400">
                 {episodesWatched} / {season.minimum_episodes}
               </span>
             </div>
 
-            <div className="h-3 rounded-full bg-[#0F172A] overflow-hidden mb-4">
+            <div className="h-3 rounded-full bg-[#090B14] overflow-hidden mb-4">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-[#8B5CF6] to-[#F59E0B]"
+                className="h-full rounded-full bg-gradient-to-r from-pink-500 to-fuchsia-500"
                 style={{
                   width: `${Math.min(
                     (episodesWatched /
@@ -97,12 +97,33 @@ export function AnimeCard({
               onChange={(e) =>
                 setEpisodesWatched(Number(e.target.value))
               }
-              className="w-full rounded-xl bg-[#0F172A] border border-white/10 p-3 text-white"
+              className="w-full rounded-xl bg-[#090B14] border border-white/10 p-3 text-white transition-colors focus:border-pink-500 focus:outline-none"
             />
 
             <button
               onClick={handleSaveProgress}
-              className="mt-4 w-full rounded-xl bg-purple-600 hover:bg-purple-500 transition p-3 font-semibold"
+              className="
+                mt-4
+                w-full
+                rounded-xl
+
+                bg-gradient-to-r
+                from-pink-500
+                to-fuchsia-500
+
+                p-3
+
+                font-semibold
+                text-white
+
+                transition-all
+                duration-300
+
+                hover:scale-[1.01]
+                hover:shadow-[0_0_35px_rgba(236,72,153,.4)]
+
+                active:scale-[0.99]
+              "
             >
               Save Progress
             </button>

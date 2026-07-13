@@ -1,8 +1,10 @@
 import { buildHallOfFameRankings } from "@/lib/hall-of-fame/build-rankings"
 import { buildProfileStats } from "@/lib/profile/build-profile-stats"
+import { buildNotifications } from "@/lib/notifications/build-notifications"
 import { createClient } from "@/lib/supabase/server"
 import type {
   AnimeProposal,
+  AppNotification,
   Club,
   ClubMember,
   ClubProgressMember,
@@ -46,6 +48,7 @@ interface ClubContext {
   reviewSummary: ReviewSummary
   hallOfFameRankings: HallOfFameRankings
   profileStats: ProfileStats
+  appNotifications: AppNotification[]
 }
 
 function calculateReviewAverages(
@@ -334,6 +337,7 @@ export async function getClubContext(
       reviewSummary: emptyReviewSummary(memberCount),
       hallOfFameRankings,
       profileStats,
+      appNotifications: [],
     }
   }
 
@@ -450,6 +454,26 @@ export async function getClubContext(
       : currentUserReview
         ? [currentUserReview]
         : []
+  const reviewSummary: ReviewSummary = {
+    currentUserReview,
+    reviews: visibleReviews,
+    submittedCount: reviews.length,
+    memberCount,
+    allSubmitted:
+      memberCount > 0 &&
+      reviews.length >= memberCount,
+    revealed: revealedReviews.length > 0,
+    averages: calculateReviewAverages(
+      revealedReviews.length > 0
+        ? revealedReviews
+        : reviews
+    ),
+  }
+  const appNotifications = buildNotifications({
+    season,
+    membership: membership as Membership,
+    reviewSummary,
+  })
 
   return {
     user,
@@ -466,27 +490,9 @@ export async function getClubContext(
     clubProgress,
     memberCount,
     proposalCount: proposalCount ?? 0,
-    reviewSummary: {
-      currentUserReview,
-      reviews: visibleReviews,
-      submittedCount: reviews.length,
-      memberCount,
-      allSubmitted:
-        memberCount > 0 &&
-        reviews.length >= memberCount,
-      revealed: revealedReviews.length > 0,
-      averages: calculateReviewAverages(
-        revealedReviews.length > 0
-          ? revealedReviews
-          : reviews
-      ),
-    },
+    reviewSummary,
     hallOfFameRankings,
     profileStats,
+    appNotifications,
   }
 }
-
-
-
-
-

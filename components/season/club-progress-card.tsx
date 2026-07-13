@@ -1,4 +1,5 @@
 import { getMemberStatus } from "@/lib/season/member-status"
+
 interface ClubProgressMember {
   user_id: string
   username: string
@@ -17,7 +18,7 @@ export function ClubProgressCard({
   currentUserId,
 }: ClubProgressCardProps) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+    <div className="rounded-3xl border border-pink-500/15 bg-gradient-to-b from-white/[0.06] to-white/[0.02] backdrop-blur-2xl p-6 shadow-[0_0_40px_rgba(236,72,153,.06)]">
       <h2 className="text-xl font-bold text-white mb-6">
         Club Progress
       </h2>
@@ -34,8 +35,8 @@ export function ClubProgressCard({
               key={member.user_id}
               className={`rounded-2xl border p-4 transition ${
                 member.user_id === currentUserId
-                  ? "bg-purple-500/10 border-purple-500/40"
-                  : "bg-[#0F172A] border-white/10"
+                  ? "bg-pink-500/10 border-pink-500/30"
+                  : "bg-white/[0.03] border-white/10"
               }`}
             >
               <div className="flex items-center justify-between mb-2">
@@ -49,14 +50,14 @@ export function ClubProgressCard({
                   </p>
                 </div>
 
-                <span className="text-sm font-semibold text-[#F59E0B]">
+                <span className="text-sm font-semibold text-pink-400">
                   {member.episodes_watched} / {seasonGoal}
                 </span>
               </div>
 
-              <div className="h-2 rounded-full bg-[#1E293B] overflow-hidden">
+              <div className="h-2 rounded-full bg-[#090B14] overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-[#8B5CF6] to-[#F59E0B]"
+                  className="h-full bg-gradient-to-r from-pink-500 to-fuchsia-500"
                   style={{
                     width: `${Math.min(
                       (member.episodes_watched /

@@ -183,6 +183,13 @@ export interface ProfileBadge {
   earned: boolean
 }
 
+export interface AnimeTaste {
+  label: string
+  strongestCategory: string | null
+  strictestCategory: string | null
+  averageScore: number | null
+}
+
 export interface ProfileStats {
   userId: string
   username: string
@@ -193,6 +200,21 @@ export interface ProfileStats {
   clubRank: number | null
   memberCount: number
   averages: ReviewAverages | null
+  animeTaste: AnimeTaste
   badges: ProfileBadge[]
 }
+export type AppNotificationType =
+  | "SEASON_STARTED"
+  | "REVIEW_AVAILABLE"
+  | "REVEAL_READY"
+
+export interface AppNotification {
+  id: string
+  type: AppNotificationType
+  title: string
+  body: string
+  actionLabel: string
+  priority: "info" | "warning" | "success"
+}
+
 

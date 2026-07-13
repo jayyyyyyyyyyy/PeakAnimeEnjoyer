@@ -73,3 +73,27 @@ Profile statistics are derived from existing reviews, proposals and challenge wi
 Reason
 
 Avoid duplicating aggregate data until the product needs cached statistics.
+---
+
+## 2026-07-09
+
+### Anime Taste
+
+Anime Taste is derived from review category averages.
+
+Reason
+
+The anime model does not store genres yet, so category-based taste avoids premature schema work.
+
+---
+
+## 2026-07-09
+
+### Notifications
+
+Notifications are currently derived in-app from season state, membership role and review status.
+
+Reason
+
+The product only needs actionable contextual prompts for now. Persistent notification storage can be added later when read/unread history is needed.
+

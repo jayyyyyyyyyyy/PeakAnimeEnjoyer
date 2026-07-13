@@ -153,6 +153,26 @@ export function ProfileScreen({
         </div>
       </div>
 
+
+      <section className="rounded-2xl border border-[#8B5CF6]/30 bg-[#8B5CF6]/10 p-5">
+        <div className="flex items-start gap-3">
+          <Star className="mt-1 h-6 w-6 shrink-0 text-[#C4B5FD]" />
+          <div>
+            <p className="text-xs text-white/50">
+              Anime Taste
+            </p>
+            <h3 className="mt-1 text-xl font-black text-white">
+              {profileStats.animeTaste.label}
+            </h3>
+            <p className="mt-2 text-sm text-white/70">
+              Strongest: {profileStats.animeTaste.strongestCategory ?? "-"}
+            </p>
+            <p className="text-sm text-white/50">
+              Strictest: {profileStats.animeTaste.strictestCategory ?? "-"}
+            </p>
+          </div>
+        </div>
+      </section>
       <section className="space-y-3">
         <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
           <BarChart3 className="h-5 w-5 text-[#F59E0B]" />
@@ -218,3 +238,4 @@ export function ProfileScreen({
     </div>
   )
 }
+

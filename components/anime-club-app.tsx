@@ -9,6 +9,7 @@ import { ProfileScreen } from "@/components/screens/profile-screen"
 import { ActionModal } from "@/components/action-modal"
 import type {
   AnimeProposal,
+  AppNotification,
   Club,
   ClubMember,
   ClubProgressMember,
@@ -37,6 +38,7 @@ interface AnimeClubAppProps {
   reviewSummary: ReviewSummary
   hallOfFameRankings: HallOfFameRankings
   profileStats: ProfileStats
+  appNotifications: AppNotification[]
 }
 
 export default function AnimeClubApp({
@@ -54,6 +56,7 @@ export default function AnimeClubApp({
   reviewSummary,
   hallOfFameRankings,
   profileStats,
+  appNotifications,
 }: AnimeClubAppProps) {
   const [activeTab, setActiveTab] = useState("home")
   const [showActionModal, setShowActionModal] = useState(false)
@@ -84,6 +87,7 @@ export default function AnimeClubApp({
             progress={progress}
             clubProgress={clubProgress}
             reviewSummary={reviewSummary}
+            appNotifications={appNotifications}
           />
         )}
 
@@ -111,4 +115,5 @@ export default function AnimeClubApp({
     </main>
   )
 }
+
 

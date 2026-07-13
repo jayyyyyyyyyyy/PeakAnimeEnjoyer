@@ -38,7 +38,7 @@ interface SeasonStatusCardProps {
 export function SeasonStatusCard(props: SeasonStatusCardProps) {
   if (!props.season) {
     return (
-      <div className="glass rounded-2xl p-4 border border-white/10">
+      <div className="rounded-2xl border border-pink-500/15 bg-white/[0.04] backdrop-blur-xl p-4">
         <p className="text-sm text-white/60">
           No active season yet.
         </p>

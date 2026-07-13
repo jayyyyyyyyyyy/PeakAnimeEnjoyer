@@ -1,4 +1,5 @@
 import type {
+  AnimeTaste,
   ClubMember,
   ClubRole,
   FinalReview,
@@ -15,6 +16,19 @@ interface BuildProfileStatsInput {
   proposalCount: number
   winningProposalCount: number
 }
+
+const tasteCategories: Array<{
+  key: keyof ReviewAverages
+  label: string
+}> = [
+  { key: "story", label: "Story" },
+  { key: "characters", label: "Characters" },
+  { key: "animation", label: "Visuals" },
+  { key: "soundtrack", label: "Soundtrack" },
+  { key: "worldBuilding", label: "World Building" },
+  { key: "pacing", label: "Pacing" },
+  { key: "emotionalImpact", label: "Emotional Impact" },
+]
 
 function calculateAverages(
   reviews: FinalReview[]
@@ -56,6 +70,43 @@ function calculateAverages(
     pacing: totals.pacing / reviews.length,
     emotionalImpact:
       totals.emotionalImpact / reviews.length,
+  }
+}
+
+function buildAnimeTaste(
+  averages: ReviewAverages | null
+): AnimeTaste {
+  if (!averages) {
+    return {
+      label: "Uncharted Taste",
+      strongestCategory: null,
+      strictestCategory: null,
+      averageScore: null,
+    }
+  }
+
+  const ranked = [...tasteCategories].sort(
+    (a, b) => averages[b.key] - averages[a.key]
+  )
+  const strongestCategory = ranked[0]?.label ?? null
+  const strictestCategory =
+    ranked[ranked.length - 1]?.label ?? null
+
+  let label = "Balanced Enjoyer"
+
+  if (averages.overall >= 8.5) {
+    label = "Hype Curator"
+  } else if (averages.overall <= 6.5) {
+    label = "Critical Analyst"
+  } else if (strongestCategory) {
+    label = `${strongestCategory} Lover`
+  }
+
+  return {
+    label,
+    strongestCategory,
+    strictestCategory,
+    averageScore: averages.overall,
   }
 }
 
@@ -163,6 +214,7 @@ export function buildProfileStats({
     clubRank: getClubRank(userId, members, reviews),
     memberCount: members.length,
     averages,
+    animeTaste: buildAnimeTaste(averages),
     badges: buildBadges({
       reviewCount: userReviews.length,
       proposalCount,

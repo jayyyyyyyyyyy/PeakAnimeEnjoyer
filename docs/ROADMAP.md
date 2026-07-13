@@ -36,7 +36,7 @@
 
 - [x] Statistics
 - [x] Badges
-- [ ] Anime Taste
+- [x] Anime Taste
 
 ---
 
@@ -44,9 +44,9 @@
 
 ## Notifications
 
-- [ ] Season Started
-- [ ] Review Available
-- [ ] Reveal Ready
+- [x] Season Started
+- [x] Review Available
+- [x] Reveal Ready
 
 ---
 

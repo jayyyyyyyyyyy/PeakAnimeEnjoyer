@@ -218,7 +218,7 @@ export function HallOfFameScreen({
                       <p className="text-xs text-white/50">
                         {entry.reviewCount} reviews
                         {entry.episodes
-                          ? ` · ${entry.episodes} episodes`
+                          ? ` - ${entry.episodes} episodes`
                           : ""}
                       </p>
                     </div>

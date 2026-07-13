@@ -6,9 +6,9 @@ Every member has a personal profile.
 
 # Status
 
-Partially implemented.
+Implemented.
 
-Profiles now use real club data instead of mock data.
+Profiles use real club data instead of mock data.
 
 ---
 
@@ -40,6 +40,24 @@ Average Emotional Impact
 
 ---
 
+# Anime Taste
+
+Anime Taste is derived from revealed review averages.
+
+It shows:
+
+Taste Label
+
+Strongest Category
+
+Strictest Category
+
+Average Score
+
+No genre table is required yet.
+
+---
+
 # Implemented Badges
 
 Reviewer
@@ -57,8 +75,6 @@ Badges are derived from existing reviews, proposals and winning proposals.
 ---
 
 # Future
-
-Anime Taste
 
 Watching History
 

@@ -349,7 +349,8 @@ Release 0.2 architecture cleanup is implemented.
 
 Business logic for Hall Of Fame and Profiles lives in lib/ helpers.
 
-Review submission, reveal, Hall Of Fame rankings and Profile statistics are no longer mock-only UI flows.
+Review submission, reveal, Hall Of Fame rankings, Profile statistics, Anime Taste and in-app Notifications are no longer mock-only UI flows.
 
 Remaining architecture work should focus on future Notifications and deeper Home decomposition if the screen grows again.
+
 

@@ -39,7 +39,9 @@ export default async function ClubPage({
       reviewSummary={context.reviewSummary}
       hallOfFameRankings={context.hallOfFameRankings}
       profileStats={context.profileStats}
+      appNotifications={context.appNotifications}
     />
   )
 }
+
 

@@ -18,20 +18,20 @@ export function ClubCompletionCard({
   onFinishSeason,
 }: ClubCompletionCardProps) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/5 p-6 mb-6">
+    <div className="rounded-3xl border border-pink-500/15 bg-gradient-to-b from-white/[0.06] to-white/[0.02] backdrop-blur-2xl p-6 mb-6 shadow-[0_0_40px_rgba(236,72,153,.06)]">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold text-white">
           Club Completion
         </h2>
 
-        <span className="text-2xl font-bold text-[#F59E0B]">
+        <span className="text-2xl font-bold text-pink-400">
           {completionPercentage}%
         </span>
       </div>
 
-      <div className="h-4 rounded-full bg-[#0F172A] overflow-hidden mb-4">
+      <div className="h-4 rounded-full bg-[#090B14] overflow-hidden mb-4">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-[#8B5CF6] to-[#F59E0B]"
+          className="h-full rounded-full bg-gradient-to-r from-pink-500 to-fuchsia-500"
           style={{
             width: `${completionPercentage}%`,
           }}
@@ -51,7 +51,7 @@ export function ClubCompletionCard({
       {everyoneFinished && isOwner && (
         <button
           onClick={onFinishSeason}
-          className="mt-6 w-full rounded-xl bg-green-600 hover:bg-green-500 transition p-4 font-semibold"
+          className="mt-6 w-full rounded-xl bg-green-600 hover:bg-green-500 transition p-4 font-semibold text-white"
         >
           Finish Season
         </button>
