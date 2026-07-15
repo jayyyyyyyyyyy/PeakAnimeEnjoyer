@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { BottomNav } from "@/components/bottom-nav"
+import { Sidebar } from "@/components/layout/sidebar"
 import { HomeScreen } from "@/components/screens/home-screen"
 import { SeasonScreen } from "@/components/screens/season-screen"
 import { HallOfFameScreen } from "@/components/screens/hall-of-fame-screen"
@@ -23,6 +24,12 @@ import type {
   SeasonChallenge,
 } from "@/lib/types/club"
 
+interface SidebarClub {
+  id: string
+  name: string
+  slug: string
+}
+
 interface AnimeClubAppProps {
   club: Club
   membership: Membership
@@ -39,6 +46,7 @@ interface AnimeClubAppProps {
   hallOfFameRankings: HallOfFameRankings
   profileStats: ProfileStats
   appNotifications: AppNotification[]
+  userClubs: SidebarClub[]
 }
 
 export default function AnimeClubApp({
@@ -57,6 +65,7 @@ export default function AnimeClubApp({
   hallOfFameRankings,
   profileStats,
   appNotifications,
+  userClubs,
 }: AnimeClubAppProps) {
   const [activeTab, setActiveTab] = useState("home")
   const [showActionModal, setShowActionModal] = useState(false)
@@ -71,38 +80,52 @@ export default function AnimeClubApp({
   }
 
   return (
-    <main className="min-h-screen bg-[#0F172A] max-w-lg mx-auto relative overflow-x-hidden">
-      <div className="min-h-screen">
-        {activeTab === "home" && (
-          <HomeScreen
-            club={club}
-            membership={membership}
-            season={season}
-            members={members}
-            proposal={proposal}
-            memberCount={memberCount}
-            proposalCount={proposalCount}
-            challenge={challenge}
-            interestVote={interestVote}
-            progress={progress}
-            clubProgress={clubProgress}
-            reviewSummary={reviewSummary}
-            appNotifications={appNotifications}
-          />
-        )}
+    <main className="relative min-h-screen overflow-x-hidden bg-[#090B14] lg:flex">
 
-        {activeTab === "season" && <SeasonScreen />}
+      <Sidebar
+        className="hidden lg:flex"
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        currentClubSlug={club.slug}
+        userClubs={userClubs}
+      />
 
-        {activeTab === "hall" && (
-          <HallOfFameScreen rankings={hallOfFameRankings} />
-        )}
+      <div className="min-h-screen flex-1">
+        <div className="mx-auto max-w-lg lg:max-w-5xl lg:px-8">
 
-        {activeTab === "profile" && (
-          <ProfileScreen profileStats={profileStats} />
-        )}
+          {activeTab === "home" && (
+            <HomeScreen
+              club={club}
+              membership={membership}
+              season={season}
+              members={members}
+              proposal={proposal}
+              memberCount={memberCount}
+              proposalCount={proposalCount}
+              challenge={challenge}
+              interestVote={interestVote}
+              progress={progress}
+              clubProgress={clubProgress}
+              reviewSummary={reviewSummary}
+              appNotifications={appNotifications}
+            />
+          )}
+
+          {activeTab === "season" && <SeasonScreen />}
+
+          {activeTab === "hall" && (
+            <HallOfFameScreen rankings={hallOfFameRankings} />
+          )}
+
+          {activeTab === "profile" && (
+            <ProfileScreen profileStats={profileStats} />
+          )}
+
+        </div>
       </div>
 
       <BottomNav
+        className="lg:hidden"
         activeTab={activeTab}
         onTabChange={handleTabChange}
       />
@@ -115,5 +138,3 @@ export default function AnimeClubApp({
     </main>
   )
 }
-
-

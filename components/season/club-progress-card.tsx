@@ -1,10 +1,5 @@
+import type { ClubProgressMember } from "@/lib/types/club"
 import { getMemberStatus } from "@/lib/season/member-status"
-
-interface ClubProgressMember {
-  user_id: string
-  username: string
-  episodes_watched: number
-}
 
 interface ClubProgressCardProps {
   members: ClubProgressMember[]

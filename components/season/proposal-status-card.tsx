@@ -1,6 +1,8 @@
 import type { AnimeProposal } from "@/lib/types/club"
+import { AnimeProposalForm } from "./anime-proposal-form"
 
 interface ProposalStatusCardProps {
+  seasonId: string
   proposal: AnimeProposal | null
   proposalCount: number
   memberCount: number
@@ -11,6 +13,7 @@ interface ProposalStatusCardProps {
 }
 
 export function ProposalStatusCard({
+  seasonId,
   proposal,
   proposalCount,
   memberCount,
@@ -21,9 +24,9 @@ export function ProposalStatusCard({
 }: ProposalStatusCardProps) {
   return (
     <>
-      {proposal && (
-        <div className="glass rounded-2xl p-4 border border-[#8B5CF6]/30">
-          <p className="text-xs text-white/50 mb-2">
+      {proposal ? (
+        <div className="rounded-2xl border border-pink-500/15 bg-white/[0.04] backdrop-blur-xl p-4">
+          <p className="mb-2 text-xs text-white/50">
             Your Proposal
           </p>
 
@@ -35,10 +38,12 @@ export function ProposalStatusCard({
             Waiting for the challenge phase.
           </p>
         </div>
+      ) : (
+        <AnimeProposalForm seasonId={seasonId} />
       )}
 
-      <div className="glass rounded-2xl p-4 border border-white/10">
-        <p className="text-xs text-white/50 mb-2">
+      <div className="mt-4 rounded-2xl border border-pink-500/15 bg-white/[0.04] backdrop-blur-xl p-4">
+        <p className="mb-2 text-xs text-white/50">
           Proposal Progress
         </p>
 
@@ -57,7 +62,28 @@ export function ProposalStatusCard({
           <button
             onClick={onStartChallenge}
             disabled={isStartingChallenge}
-            className="w-full rounded-xl bg-purple-600 p-3 font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
+            className="
+              mt-4
+              w-full
+              rounded-xl
+
+              bg-gradient-to-r
+              from-pink-500
+              to-fuchsia-500
+
+              p-3
+
+              font-bold
+              text-white
+
+              transition-all
+              duration-300
+
+              hover:scale-[1.01]
+
+              disabled:cursor-not-allowed
+              disabled:opacity-60
+            "
           >
             {isStartingChallenge
               ? "Starting Challenge..."
@@ -66,7 +92,7 @@ export function ProposalStatusCard({
         )}
 
       {startError && (
-        <p className="text-sm text-red-300">
+        <p className="mt-3 text-sm text-red-300">
           {startError}
         </p>
       )}

@@ -11,10 +11,14 @@ import {
 import { submitInterestVote } from "@/app/actions/interest-vote"
 import type {
   AnimeProposal,
+  AppNotification,
   Club,
   ClubMember,
+  ClubProgressMember,
+  EpisodeProgress,
   InterestVote,
   Membership,
+  ReviewSummary,
   Season,
   SeasonChallenge,
 } from "@/lib/types/club"
@@ -39,9 +43,10 @@ interface HomeScreenProps {
   interestVote: InterestVote | null
   memberCount: number
   proposalCount: number
-  challengeWinner: any
-  progress: any
-  clubProgress: any
+  progress: EpisodeProgress | null
+  clubProgress: ClubProgressMember[]
+  reviewSummary: ReviewSummary
+  appNotifications: AppNotification[]
 }
 
 export function HomeScreen({
@@ -54,9 +59,10 @@ export function HomeScreen({
   interestVote,
   memberCount,
   proposalCount,
-  challengeWinner,
   progress,
   clubProgress,
+  reviewSummary,
+  appNotifications,
 }: HomeScreenProps) {
   const router = useRouter()
   const [startError, setStartError] = useState<string | null>(null)
@@ -243,9 +249,9 @@ const totalWatched = clubProgress.reduce(
   0
 )
 
-const totalGoal =
-  clubProgress.length *
-  season!.minimum_episodes
+const totalGoal = season
+  ? clubProgress.length * season.minimum_episodes
+  : 0
 
 const completionPercentage =
   totalGoal === 0
@@ -254,17 +260,18 @@ const completionPercentage =
         (totalWatched / totalGoal) * 100
       )
 
-  const everyoneFinished = clubProgress.every(
+const everyoneFinished =
+  season !== null &&
+  clubProgress.every(
     (member: any) =>
-      member.episodes_watched >=
-      season!.minimum_episodes
+      member.episodes_watched >= season.minimum_episodes
   )
 
 // TODO: calculate from season.deadline
 const daysRemaining = 12
 
   return (
-    <div className="pb-24 px-4 space-y-6">
+    <div className="space-y-6 px-4 pb-24 lg:px-0 lg:pb-10">
       <HomeHeader
           club={club}
           season={season}
@@ -274,116 +281,113 @@ const daysRemaining = 12
       {season?.status === "REVIEW" && (
         <ReviewScreen
           season={season}
-
           story={story}
           setStory={setStory}
-
           characters={characters}
           setCharacters={setCharacters}
-
           animation={animation}
           setAnimation={setAnimation}
-
           soundtrack={soundtrack}
           setSoundtrack={setSoundtrack}
-
           worldBuilding={worldBuilding}
           setWorldBuilding={setWorldBuilding}
-
           pacing={pacing}
           setPacing={setPacing}
-
           emotionalImpact={emotionalImpact}
           setEmotionalImpact={setEmotionalImpact}
-
           review={review}
           setReview={setReview}
-
           onSubmit={handleSubmitReview}
-
           isSubmitting={isSubmittingReview}
         />
       )}
       
 
       {season?.status === "REVEALED" && challenge && (
-  <div className="glass rounded-2xl p-4 border border-yellow-500/30">
-    <p className="text-xs text-white/50 mb-2">
-      Challenge Winner
-    </p>
+        <div className="glass rounded-2xl p-4 border border-yellow-500/30">
+          <p className="text-xs text-white/50 mb-2">
+            Challenge Winner
+          </p>
 
-    <h2 className="text-lg font-bold text-white">
-      {challenge.winner?.username}
-    </h2>
+          <h2 className="text-lg font-bold text-white">
+            {challenge.winner?.username}
+          </h2>
 
-    <p className="text-sm text-yellow-400">
-      {challenge.method}
-    </p>
-    {membership.role === "OWNER" && (
-    <button
-    onClick={handleStartSeason}
-    className="mt-4 w-full rounded-xl bg-green-600 p-3 font-bold text-white"
-    >
-      Start Season
-    </button>
-)}
-  </div>
-)}
+          <p className="text-sm text-yellow-400">
+            {challenge.method}
+          </p>
 
+          {membership.role === "OWNER" && (
+            <button
+              onClick={handleStartSeason}
+              className="mt-4 w-full rounded-xl bg-green-600 p-3 font-bold text-white"
+            >
+              Start Season
+            </button>
+          )}
+        </div>
+      )}
 
-      <SeasonStatusCard
-        season={season}
-        membership={membership}
-        proposal={proposal}
-        proposalCount={proposalCount}
-        memberCount={memberCount}
-        challenge={challenge}
-        interestVote={interestVote}
-        voteScore={voteScore}
-        setVoteScore={setVoteScore}
-        isStartingChallenge={isStartingChallenge}
-        isStartingVoting={isStartingVoting}
-        isSubmittingVote={isSubmittingVote}
-        startError={startError}
-        voteError={voteError}
-        handleStartChallenge={handleStartChallenge}
-        handleStartInterestVoting={handleStartInterestVoting}
-        handleSubmitInterestVote={handleSubmitInterestVote}
-      />
+      <div className="lg:grid lg:grid-cols-[1fr_380px] lg:gap-6 lg:items-start">
 
-{season?.anime && (
-  <AnimeCard
-    season={season}
-    episodesWatched={episodesWatched}
-    setEpisodesWatched={setEpisodesWatched}
-    handleSaveProgress={handleSaveProgress}
-  />
-)}
+        <div className="space-y-6">
+          <SeasonStatusCard
+            clubId={club.id}
+            season={season}
+            membership={membership}
+            proposal={proposal}
+            proposalCount={proposalCount}
+            memberCount={memberCount}
+            challenge={challenge}
+            interestVote={interestVote}
+            voteScore={voteScore}
+            setVoteScore={setVoteScore}
+            isStartingChallenge={isStartingChallenge}
+            isStartingVoting={isStartingVoting}
+            isSubmittingVote={isSubmittingVote}
+            startError={startError}
+            voteError={voteError}
+            handleStartChallenge={handleStartChallenge}
+            handleStartInterestVoting={handleStartInterestVoting}
+            handleSubmitInterestVote={handleSubmitInterestVote}
+          />
 
-{season?.status === "ACTIVE" && (
-  <>
-    <ClubCompletionCard
-      totalWatched={totalWatched}
-      totalGoal={totalGoal}
-      completionPercentage={completionPercentage}
-      memberCount={clubProgress.length}
-      everyoneFinished={everyoneFinished}
-      isOwner={membership.role === "OWNER"}
-      onFinishSeason={handleFinishSeason}
-    />
+          {season?.anime && (
+            <AnimeCard
+              season={season}
+              episodesWatched={episodesWatched}
+              setEpisodesWatched={setEpisodesWatched}
+              handleSaveProgress={handleSaveProgress}
+            />
+          )}
+        </div>
 
-    <ClubProgressCard
-      members={clubProgress}
-      seasonGoal={season.minimum_episodes}
-      currentUserId={membership.user_id}
-    />
+        {season?.status === "ACTIVE" && (
+          <div className="mt-6 space-y-6 lg:mt-0">
+            <ClubCompletionCard
+              totalWatched={totalWatched}
+              totalGoal={totalGoal}
+              completionPercentage={completionPercentage}
+              memberCount={clubProgress.length}
+              everyoneFinished={everyoneFinished}
+              isOwner={membership.role === "OWNER"}
+              onFinishSeason={handleFinishSeason}
+            />
 
-    <SeasonDeadlineCard
-  daysRemaining={daysRemaining}
-/>
-  </>
-)}
+            <ClubProgressCard
+              members={clubProgress}
+              seasonGoal={season.minimum_episodes}
+              currentUserId={membership.user_id}
+            />
 
-</div>
-)
+            <SeasonDeadlineCard
+              daysRemaining={daysRemaining}
+            />
+          </div>
+        )}
+
+ </div>
+
+    </div>
+  )
 }

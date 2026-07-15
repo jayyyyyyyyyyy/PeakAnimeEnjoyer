@@ -8,8 +8,10 @@ import type {
 import { ProposalStatusCard } from "./proposal-status-card"
 import { ChallengeStatusCard } from "./challenge-status-card"
 import { InterestVotingCard } from "./interest-voting-card"
+import { EmptySeasonCard } from "./empty-season-card"
 
 interface SeasonStatusCardProps {
+  clubId: string
   season: Season | null
   membership: Membership
 
@@ -38,11 +40,10 @@ interface SeasonStatusCardProps {
 export function SeasonStatusCard(props: SeasonStatusCardProps) {
   if (!props.season) {
     return (
-      <div className="rounded-2xl border border-pink-500/15 bg-white/[0.04] backdrop-blur-xl p-4">
-        <p className="text-sm text-white/60">
-          No active season yet.
-        </p>
-      </div>
+      <EmptySeasonCard
+        clubId={props.clubId}
+        isOwner={props.membership.role === "OWNER"}
+      />
     )
   }
 
@@ -50,6 +51,7 @@ export function SeasonStatusCard(props: SeasonStatusCardProps) {
     case "PROPOSAL":
       return (
         <ProposalStatusCard
+          seasonId={props.season.id}
           proposal={props.proposal}
           proposalCount={props.proposalCount}
           memberCount={props.memberCount}
@@ -60,7 +62,7 @@ export function SeasonStatusCard(props: SeasonStatusCardProps) {
         />
       )
 
-    case "CHALLENGE":
+case "CHALLENGE":
       return (
         <ChallengeStatusCard
           challenge={props.challenge}
