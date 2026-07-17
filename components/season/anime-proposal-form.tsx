@@ -8,7 +8,7 @@ import { findOrCreateAnime } from "@/app/actions/anime"
 import { submitProposal } from "@/app/actions/proposal"
 
 interface AnimeResult {
-  mal_id: number
+  mal_id: number | null
   title: string
   imageUrl: string | null
   episodes: number | null
@@ -21,16 +21,76 @@ interface AnimeProposalFormProps {
   seasonId: string
 }
 
-function mapJikanResult(raw: any): AnimeResult {
-  return {
-    mal_id: raw.mal_id,
-    title: raw.title_english || raw.title,
-    imageUrl: raw.images?.jpg?.image_url ?? null,
-    episodes: raw.episodes ?? null,
-    year: raw.year ?? raw.aired?.prop?.from?.year ?? null,
-    genres: (raw.genres ?? []).map((g: any) => g.name),
-    synopsis: raw.synopsis ?? null,
+const ANILIST_QUERY = `
+  query ($search: String, $perPage: Int) {
+    Page(perPage: $perPage) {
+      media(search: $search, type: ANIME, sort: POPULARITY_DESC) {
+        idMal
+        title {
+          english
+          romaji
+        }
+        coverImage {
+          large
+        }
+        episodes
+        seasonYear
+        genres
+        description(asHtml: false)
+      }
+    }
   }
+`
+
+function stripHtml(value: string | null): string | null {
+  if (!value) return null
+  return value.replace(/<[^>]*>/g, "").trim()
+}
+
+function mapAniListResult(raw: any): AnimeResult {
+  return {
+    mal_id: raw.idMal ?? null,
+    title: raw.title?.english || raw.title?.romaji || "Untitled",
+    imageUrl: raw.coverImage?.large ?? null,
+    episodes: raw.episodes ?? null,
+    year: raw.seasonYear ?? null,
+    genres: raw.genres ?? [],
+    synopsis: stripHtml(raw.description),
+  }
+}
+
+async function fetchWithRetry(
+  url: string,
+  init: RequestInit,
+  attempts = 2
+): Promise<Response> {
+  for (let i = 0; i < attempts; i++) {
+    try {
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), 8000)
+
+      const response = await fetch(url, {
+        ...init,
+        signal: controller.signal,
+      })
+
+      clearTimeout(timeout)
+
+      if (response.ok) return response
+
+      if (![502, 503, 504].includes(response.status)) {
+        return response
+      }
+    } catch {
+      // network error o abort → riprova se restano tentativi
+    }
+
+    if (i < attempts - 1) {
+      await new Promise((resolve) => setTimeout(resolve, 700))
+    }
+  }
+
+  throw new Error("AniList API unavailable")
 }
 
 export function AnimeProposalForm({
@@ -61,10 +121,22 @@ export function AnimeProposalForm({
       setSearchError(null)
 
       try {
-        const response = await fetch(
-          `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(
-            query.trim()
-          )}&limit=8&order_by=popularity`
+        const response = await fetchWithRetry(
+          "https://graphql.anilist.co",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify({
+              query: ANILIST_QUERY,
+              variables: {
+                search: query.trim(),
+                perPage: 8,
+              },
+            }),
+          }
         )
 
         if (!response.ok) {
@@ -72,10 +144,13 @@ export function AnimeProposalForm({
         }
 
         const json = await response.json()
+        const media = json.data?.Page?.media ?? []
 
-        setResults((json.data ?? []).map(mapJikanResult))
+        setResults(media.map(mapAniListResult))
       } catch {
-        setSearchError("Unable to search anime right now.")
+        setSearchError(
+          "The anime database is temporarily unavailable. Try again in a moment."
+        )
         setResults([])
       } finally {
         setIsSearching(false)
@@ -88,6 +163,13 @@ export function AnimeProposalForm({
   }, [query])
 
   async function handlePropose(anime: AnimeResult) {
+    if (!anime.mal_id) {
+      setSubmitError(
+        "This title can't be proposed yet (missing MyAnimeList reference)."
+      )
+      return
+    }
+
     setSubmitError(null)
     setSubmittingId(anime.mal_id)
 
@@ -173,9 +255,9 @@ export function AnimeProposalForm({
 
       {results.length > 0 && (
         <div className="mt-4 max-h-80 space-y-2 overflow-y-auto pr-1">
-          {results.map((anime) => (
+          {results.map((anime, index) => (
             <div
-              key={anime.mal_id}
+              key={anime.mal_id ?? `no-mal-${index}`}
               className="
                 flex
                 items-center
@@ -217,7 +299,14 @@ export function AnimeProposalForm({
 
               <button
                 onClick={() => handlePropose(anime)}
-                disabled={submittingId === anime.mal_id}
+                disabled={
+                  !anime.mal_id || submittingId === anime.mal_id
+                }
+                title={
+                  !anime.mal_id
+                    ? "Missing MyAnimeList reference"
+                    : undefined
+                }
                 className="
                   shrink-0
                   rounded-lg
@@ -238,7 +327,8 @@ export function AnimeProposalForm({
 
                   hover:scale-[1.03]
 
-                  disabled:opacity-60
+                  disabled:opacity-40
+                  disabled:hover:scale-100
                 "
               >
                 {submittingId === anime.mal_id ? "..." : "Propose"}
