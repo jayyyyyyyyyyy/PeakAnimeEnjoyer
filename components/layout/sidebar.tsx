@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { Home, Tv, Trophy, User, Plus } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { LogoutButton } from "@/components/auth/logout-button"
 
 interface SidebarClub {
   id: string
@@ -127,6 +128,10 @@ export function Sidebar({
             )
           })}
         </nav>
+
+        <div className="border-t border-white/5 px-4 py-4">
+          <LogoutButton className="w-full" />
+        </div>
 
         <div className="border-t border-white/5 px-4 py-4">
           <p className="text-center text-xs text-zinc-600">

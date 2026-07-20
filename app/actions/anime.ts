@@ -46,6 +46,8 @@ export async function findOrCreateAnime(
     .single()
 
   if (createError) {
+    console.error("findOrCreateAnime insert error:", createError)
+
     // Race condition: due utenti cercano lo stesso anime nello stesso istante,
     // il secondo insert fallisce per via del vincolo unique su mal_id.
     if (createError.code === "23505") {
@@ -58,7 +60,9 @@ export async function findOrCreateAnime(
       if (retry) return retry
     }
 
-    throw new Error("Failed to save anime")
+        throw new Error(
+      `Failed to save anime: ${createError.message}`
+    )
   }
 
   return created

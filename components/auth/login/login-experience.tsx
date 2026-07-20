@@ -10,6 +10,8 @@ import { Background } from "../shared/background"
 import { Hero } from "./hero"
 import { LoginForm } from "./login-form"
 
+import { useRouter } from "next/navigation"
+
 interface LoginExperienceProps {
   posters: string[]
 }
@@ -17,31 +19,34 @@ interface LoginExperienceProps {
 export function LoginExperience({ posters }: LoginExperienceProps) {
   const supabase = createClient()
 
+  const router = useRouter()
+  
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
 
   const [loginLoading, setLoginLoading] = useState(false)
   const [signupLoading, setSignupLoading] = useState(false)
 
-  async function handleLogin() {
-    try {
-      setLoginLoading(true)
+async function handleLogin() {
+  try {
+    setLoginLoading(true)
 
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
 
-      if (error) {
-        alert(error.message)
-        return
-      }
-
-      window.location.reload()
-    } finally {
-      setLoginLoading(false)
+    if (error) {
+      alert(error.message)
+      return
     }
+
+    router.push("/my-clubs")
+    router.refresh()
+  } finally {
+    setLoginLoading(false)
   }
+}
 
   async function handleSignup() {
     try {
