@@ -22,7 +22,7 @@ export async function submitInterestVote(
 
   const { data: season } = await supabase
     .from("seasons")
-    .select("id,status")
+    .select("id,status,selected_anime_id")
     .eq("id", seasonId)
     .single()
 
@@ -34,15 +34,8 @@ export async function submitInterestVote(
     throw new Error("Season is not accepting interest votes")
   }
 
-  const { data: challenge } = await supabase
-    .from("season_challenges")
-    .select("anime_id")
-    .eq("season_id", seasonId)
-    .eq("receiver_user_id", user.id)
-    .single()
-
-  if (!challenge) {
-    throw new Error("Challenge not found")
+  if (!season.selected_anime_id) {
+    throw new Error("No anime selected for this season yet")
   }
 
   const { data: existingVote } = await supabase
@@ -57,7 +50,7 @@ export async function submitInterestVote(
       .from("interest_votes")
       .update({
         score,
-        anime_id: challenge.anime_id,
+        anime_id: season.selected_anime_id,
         updated_at: new Date().toISOString(),
       })
       .eq("id", existingVote.id)
@@ -76,7 +69,7 @@ export async function submitInterestVote(
     .insert({
       season_id: seasonId,
       user_id: user.id,
-      anime_id: challenge.anime_id,
+      anime_id: season.selected_anime_id,
       score,
     })
     .select()

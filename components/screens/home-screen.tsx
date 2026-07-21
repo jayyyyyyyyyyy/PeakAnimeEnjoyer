@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 import { startSeason } from "@/app/actions/season-transition"
 import {
   startChallenge,
-  startInterestVoting,
+  finishInterestVoting,
 } from "@/app/actions/season-transition"
 import { submitInterestVote } from "@/app/actions/interest-vote"
 import type {
@@ -67,7 +67,6 @@ export function HomeScreen({
   const router = useRouter()
   const [startError, setStartError] = useState<string | null>(null)
   const [isStartingChallenge, setIsStartingChallenge] = useState(false)
-  const [isStartingVoting, setIsStartingVoting] = useState(false)
   const [voteScore, setVoteScore] = useState(interestVote?.score ?? 7)
   const [voteError, setVoteError] = useState<string | null>(null)
   const [isSubmittingVote, setIsSubmittingVote] = useState(false)
@@ -125,28 +124,31 @@ const [review, setReview] = useState("")
 const [isSubmittingReview, setIsSubmittingReview] =
   useState(false)
 
-  async function handleStartInterestVoting() {
-    if (!season?.id) {
-      setStartError("No active season found.")
-      return
-    }
+const [isFinishingVoting, setIsFinishingVoting] = useState(false)
+const [finishVotingError, setFinishVotingError] = useState<string | null>(null)
 
-    setStartError(null)
-    setIsStartingVoting(true)
-
-    try {
-      await startInterestVoting(season.id)
-      router.refresh()
-    } catch (error) {
-      setStartError(
-        error instanceof Error
-          ? error.message
-          : "Unable to start interest voting."
-      )
-    } finally {
-      setIsStartingVoting(false)
-    }
+async function handleFinishInterestVoting() {
+  if (!season?.id) {
+    setFinishVotingError("No active season found.")
+    return
   }
+
+  setFinishVotingError(null)
+  setIsFinishingVoting(true)
+
+  try {
+    await finishInterestVoting(season.id)
+    router.refresh()
+  } catch (error) {
+    setFinishVotingError(
+      error instanceof Error
+        ? error.message
+        : "Unable to finish interest voting."
+    )
+  } finally {
+    setIsFinishingVoting(false)
+  }
+}
 
   async function handleSubmitInterestVote() {
     if (!season?.id) {
@@ -343,13 +345,14 @@ const daysRemaining = 12
             voteScore={voteScore}
             setVoteScore={setVoteScore}
             isStartingChallenge={isStartingChallenge}
-            isStartingVoting={isStartingVoting}
             isSubmittingVote={isSubmittingVote}
+            isFinishingVoting={isFinishingVoting}
             startError={startError}
             voteError={voteError}
+            finishVotingError={finishVotingError}
             handleStartChallenge={handleStartChallenge}
-            handleStartInterestVoting={handleStartInterestVoting}
             handleSubmitInterestVote={handleSubmitInterestVote}
+            handleFinishInterestVoting={handleFinishInterestVoting}
           />
 
           {season?.anime && (

@@ -26,15 +26,16 @@ interface SeasonStatusCardProps {
   setVoteScore: (score: number) => void
 
   isStartingChallenge: boolean
-  isStartingVoting: boolean
   isSubmittingVote: boolean
+  isFinishingVoting: boolean
 
   startError: string | null
   voteError: string | null
+  finishVotingError: string | null
 
   handleStartChallenge: () => void
-  handleStartInterestVoting: () => void
   handleSubmitInterestVote: () => void
+  handleFinishInterestVoting: () => void
 }
 
 export function SeasonStatusCard(props: SeasonStatusCardProps) {
@@ -62,22 +63,19 @@ export function SeasonStatusCard(props: SeasonStatusCardProps) {
         />
       )
 
-case "CHALLENGE":
+    case "CHALLENGE":
       return (
         <ChallengeStatusCard
+          seasonId={props.season.id}
           challenge={props.challenge}
           season={props.season}
           isOwner={props.membership.role === "OWNER"}
-          isStartingVoting={props.isStartingVoting}
-          startError={props.startError}
-          onStartInterestVoting={props.handleStartInterestVoting}
         />
       )
 
     case "INTEREST_VOTING":
       return (
         <InterestVotingCard
-          challenge={props.challenge}
           season={props.season}
           interestVote={props.interestVote}
           voteScore={props.voteScore}
@@ -85,6 +83,10 @@ case "CHALLENGE":
           handleSubmitInterestVote={props.handleSubmitInterestVote}
           isSubmittingVote={props.isSubmittingVote}
           voteError={props.voteError}
+          isOwner={props.membership.role === "OWNER"}
+          isFinishingVoting={props.isFinishingVoting}
+          finishVotingError={props.finishVotingError}
+          handleFinishInterestVoting={props.handleFinishInterestVoting}
         />
       )
 

@@ -124,3 +124,44 @@ export async function getUserProposal(
 
   return data
 }
+
+export async function getSeasonProposals(seasonId: string) {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    throw new Error("Unauthorized")
+  }
+
+  const { data, error } = await supabase
+    .from("anime_proposals")
+    .select(`
+      user_id,
+      anime_id,
+      anime (
+        id,
+        title,
+        image_url
+      ),
+      profiles (
+        username
+      )
+    `)
+    .eq("season_id", seasonId)
+
+  if (error) {
+    console.error(error)
+    throw new Error("Failed to load proposals")
+  }
+
+  return (data ?? []).map((row: any) => ({
+    user_id: row.user_id,
+    username: row.profiles?.username ?? "Unknown",
+    anime_id: row.anime_id,
+    anime_title: row.anime?.title ?? "Unknown anime",
+    anime_image_url: row.anime?.image_url ?? null,
+  }))
+}

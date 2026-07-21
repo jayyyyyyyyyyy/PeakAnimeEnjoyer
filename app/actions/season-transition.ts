@@ -152,20 +152,20 @@ export async function setChallengeWinner(
     .from("seasons")
     .update({
       selected_anime_id: proposal.anime_id,
-      status: "REVEALED",
+      status: "INTEREST_VOTING",
     })
     .eq("id", seasonId)
     .select("id,status,selected_anime_id")
     .single()
 
   if (error || !data) {
-    throw new Error("Failed to reveal winner")
+    throw new Error("Failed to move to interest voting")
   }
 
   return data
 }
 
-export async function startInterestVoting(
+export async function finishInterestVoting(
   seasonId: string
 ) {
   const supabase = await createClient()
@@ -188,8 +188,8 @@ export async function startInterestVoting(
     throw new Error("Season not found")
   }
 
-  if (season.status !== "CHALLENGE") {
-    throw new Error("Season is not in challenge phase")
+  if (season.status !== "INTEREST_VOTING") {
+    throw new Error("Season is not in interest voting phase")
   }
 
   const { data: membership } = await supabase
@@ -200,48 +200,25 @@ export async function startInterestVoting(
     .single()
 
   if (membership?.role !== "OWNER") {
-    throw new Error("Only the club owner can start interest voting")
-  }
-
-  const { count: memberCount } = await supabase
-    .from("club_members")
-    .select("*", {
-      count: "exact",
-      head: true,
-    })
-    .eq("club_id", season.club_id)
-
-  const { count: challengeCount } = await supabase
-    .from("season_challenges")
-    .select("*", {
-      count: "exact",
-      head: true,
-    })
-    .eq("season_id", seasonId)
-
-  if (
-    !memberCount ||
-    !challengeCount ||
-    challengeCount !== memberCount
-  ) {
-    throw new Error("All challenges must exist before interest voting")
+    throw new Error("Only the owner can finish interest voting")
   }
 
   const { data, error } = await supabase
     .from("seasons")
     .update({
-      status: "INTEREST_VOTING",
+      status: "ACTIVE",
     })
     .eq("id", seasonId)
     .select("id,status")
     .single()
 
   if (error || !data) {
-    throw new Error("Failed to start interest voting")
+    throw new Error("Failed to start the season")
   }
 
   return data
 }
+
 export async function startSeason(
   seasonId: string
 ) {

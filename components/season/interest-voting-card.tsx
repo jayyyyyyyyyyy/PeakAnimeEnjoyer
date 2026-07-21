@@ -1,12 +1,7 @@
-import type {
-  InterestVote,
-  Season,
-  SeasonChallenge,
-} from "@/lib/types/club"
+import type { InterestVote, Season } from "@/lib/types/club"
 import { cn } from "@/lib/utils"
 
 interface InterestVotingCardProps {
-  challenge: SeasonChallenge | null
   season: Season
   interestVote: InterestVote | null
   voteScore: number
@@ -14,10 +9,14 @@ interface InterestVotingCardProps {
   handleSubmitInterestVote: () => void
   isSubmittingVote: boolean
   voteError: string | null
+
+  isOwner: boolean
+  isFinishingVoting: boolean
+  finishVotingError: string | null
+  handleFinishInterestVoting: () => void
 }
 
 export function InterestVotingCard({
-  challenge,
   season,
   interestVote,
   voteScore,
@@ -25,17 +24,21 @@ export function InterestVotingCard({
   handleSubmitInterestVote,
   isSubmittingVote,
   voteError,
+  isOwner,
+  isFinishingVoting,
+  finishVotingError,
+  handleFinishInterestVoting,
 }: InterestVotingCardProps) {
   return (
     <div className="space-y-3">
-      <div className="glass rounded-2xl p-4 border border-[#F59E0B]/30">
-        <p className="text-xs text-white/50 mb-2">
+      <div className="rounded-2xl border border-pink-500/15 bg-white/[0.04] backdrop-blur-xl p-4">
+        <p className="mb-2 text-xs text-white/50">
           Interest Vote
         </p>
 
-        {challenge ? (
+        {season.anime ? (
           <>
-            {season?.anime?.image_url && (
+            {season.anime.image_url && (
               <div
                 className="h-40 rounded-2xl bg-cover bg-center mb-4 border border-white/10"
                 style={{
@@ -45,13 +48,13 @@ export function InterestVotingCard({
             )}
 
             <h2 className="text-lg font-bold text-white">
-              {season.anime?.title}
+              {season.anime.title}
             </h2>
 
             {interestVote ? (
               <p className="text-sm text-white/60">
                 Your current interest score is{" "}
-                <span className="font-bold text-[#F59E0B]">
+                <span className="font-bold text-pink-400">
                   {interestVote.score}/10
                 </span>
                 .
@@ -71,7 +74,7 @@ export function InterestVotingCard({
                     className={cn(
                       "h-10 rounded-xl border text-sm font-bold transition-colors",
                       voteScore === score
-                        ? "border-[#F59E0B] bg-[#F59E0B] text-[#0F172A]"
+                        ? "border-pink-500 bg-gradient-to-r from-pink-500 to-fuchsia-500 text-white"
                         : "border-white/10 bg-white/5 text-white/70"
                     )}
                   >
@@ -84,7 +87,14 @@ export function InterestVotingCard({
             <button
               onClick={handleSubmitInterestVote}
               disabled={isSubmittingVote}
-              className="mt-4 w-full rounded-xl bg-[#F59E0B] p-3 font-bold text-[#0F172A] disabled:cursor-not-allowed disabled:opacity-60"
+              className="
+                mt-4 w-full rounded-xl
+                bg-gradient-to-r from-pink-500 to-fuchsia-500
+                p-3
+                font-bold text-white
+                transition-all duration-300
+                disabled:cursor-not-allowed disabled:opacity-60
+              "
             >
               {isSubmittingVote
                 ? "Saving Vote..."
@@ -102,15 +112,42 @@ export function InterestVotingCard({
         ) : (
           <>
             <h2 className="text-lg font-bold text-white">
-              No challenge found
+              No anime selected yet
             </h2>
 
             <p className="text-sm text-white/60">
-              Ask the owner to check the season assignments.
+              Ask the owner to check the challenge result.
             </p>
           </>
         )}
       </div>
+
+      {isOwner && (
+        <>
+          <button
+            onClick={handleFinishInterestVoting}
+            disabled={isFinishingVoting}
+            className="
+              w-full rounded-xl
+              bg-gradient-to-r from-pink-500 to-fuchsia-500
+              p-3
+              font-bold text-white
+              transition-all duration-300
+              disabled:cursor-not-allowed disabled:opacity-60
+            "
+          >
+            {isFinishingVoting
+              ? "Starting Season..."
+              : "Finish Voting & Start Season"}
+          </button>
+
+          {finishVotingError && (
+            <p className="text-sm text-red-300">
+              {finishVotingError}
+            </p>
+          )}
+        </>
+      )}
     </div>
   )
 }
