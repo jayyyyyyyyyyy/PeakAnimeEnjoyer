@@ -48,13 +48,46 @@ export function ClubCompletionCard({
         </span>
       </div>
 
-      {everyoneFinished && isOwner && (
-        <button
-          onClick={onFinishSeason}
-          className="mt-6 w-full rounded-xl bg-green-600 hover:bg-green-500 transition p-4 font-semibold text-white"
-        >
-          Finish Season
-        </button>
+      {isOwner && (
+        <>
+          <button
+            onClick={onFinishSeason}
+            disabled={!everyoneFinished}
+            className="
+              mt-6
+              w-full
+              rounded-xl
+
+              bg-gradient-to-r
+              from-pink-500
+              to-fuchsia-500
+
+              p-4
+
+              font-semibold
+              text-white
+
+              transition-all
+              duration-300
+
+              hover:scale-[1.01]
+              hover:shadow-[0_0_35px_rgba(236,72,153,.4)]
+
+              disabled:cursor-not-allowed
+              disabled:opacity-40
+              disabled:hover:scale-100
+              disabled:hover:shadow-none
+            "
+          >
+            Finish Season
+          </button>
+
+          {!everyoneFinished && (
+            <p className="mt-2 text-center text-xs text-white/40">
+              Every member must reach the season goal first.
+            </p>
+          )}
+        </>
       )}
     </div>
   )

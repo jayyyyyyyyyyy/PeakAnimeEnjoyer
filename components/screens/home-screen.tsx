@@ -1,8 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { ReviewWaitingCard } from "@/components/review/review-waiting-card"
 import { startSeason } from "@/app/actions/season-transition"
 import {
   startChallenge,
@@ -127,6 +128,18 @@ const [isSubmittingReview, setIsSubmittingReview] =
 const [isFinishingVoting, setIsFinishingVoting] = useState(false)
 const [finishVotingError, setFinishVotingError] = useState<string | null>(null)
 
+useEffect(() => {
+  if (season?.status !== "ACTIVE") return
+
+  const interval = setInterval(() => {
+    if (document.visibilityState === "visible") {
+      router.refresh()
+    }
+  }, 20000)
+
+  return () => clearInterval(interval)
+}, [season?.status, router])
+
 async function handleFinishInterestVoting() {
   if (!season?.id) {
     setFinishVotingError("No active season found.")
@@ -174,23 +187,23 @@ async function handleFinishInterestVoting() {
   }
 
   async function handleSaveProgress() {
-  try {
-    await updateEpisodeProgress(
-      season!.id,
-      episodesWatched
-    )
+    try {
+      await updateEpisodeProgress(
+        season!.id,
+        episodesWatched
+      )
 
-    alert("Progress saved!")
-  } catch (error) {
-    console.error(error)
+      router.refresh()
+    } catch (error) {
+      console.error(error)
 
-    alert(
-      error instanceof Error
-        ? error.message
-        : "Failed to save progress"
-    )
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Failed to save progress"
+      )
+    }
   }
-}
 
 async function handleFinishSeason() {
   if (!season) return
@@ -245,11 +258,13 @@ async function handleSubmitReview() {
   }
 }
 
-const totalWatched = clubProgress.reduce(
-  (sum: number, member: any) =>
-    sum + member.episodes_watched,
-  0
-)
+const totalWatched = season
+  ? clubProgress.reduce(
+      (sum: number, member: any) =>
+        sum + Math.min(member.episodes_watched, season.minimum_episodes),
+      0
+    )
+  : 0
 
 const totalGoal = season
   ? clubProgress.length * season.minimum_episodes
@@ -269,8 +284,15 @@ const everyoneFinished =
       member.episodes_watched >= season.minimum_episodes
   )
 
-// TODO: calculate from season.deadline
-const daysRemaining = 12
+const daysRemaining = season?.deadline
+  ? Math.max(
+      0,
+      Math.ceil(
+        (new Date(season.deadline).getTime() - Date.now()) /
+          (1000 * 60 * 60 * 24)
+      )
+    )
+  : 0
 
   return (
     <div className="space-y-6 px-4 pb-24 lg:px-0 lg:pb-10">
@@ -280,29 +302,37 @@ const daysRemaining = 12
           membership={membership}
       />
 
-      {season?.status === "REVIEW" && (
-        <ReviewScreen
-          season={season}
-          story={story}
-          setStory={setStory}
-          characters={characters}
-          setCharacters={setCharacters}
-          animation={animation}
-          setAnimation={setAnimation}
-          soundtrack={soundtrack}
-          setSoundtrack={setSoundtrack}
-          worldBuilding={worldBuilding}
-          setWorldBuilding={setWorldBuilding}
-          pacing={pacing}
-          setPacing={setPacing}
-          emotionalImpact={emotionalImpact}
-          setEmotionalImpact={setEmotionalImpact}
-          review={review}
-          setReview={setReview}
-          onSubmit={handleSubmitReview}
-          isSubmitting={isSubmittingReview}
-        />
-      )}
+{season?.status === "REVIEW" && (
+  reviewSummary.currentUserReview ? (
+    <ReviewWaitingCard
+      seasonId={season.id}
+      reviewSummary={reviewSummary}
+      isOwner={membership.role === "OWNER"}
+    />
+  ) : (
+    <ReviewScreen
+      season={season}
+      story={story}
+      setStory={setStory}
+      characters={characters}
+      setCharacters={setCharacters}
+      animation={animation}
+      setAnimation={setAnimation}
+      soundtrack={soundtrack}
+      setSoundtrack={setSoundtrack}
+      worldBuilding={worldBuilding}
+      setWorldBuilding={setWorldBuilding}
+      pacing={pacing}
+      setPacing={setPacing}
+      emotionalImpact={emotionalImpact}
+      setEmotionalImpact={setEmotionalImpact}
+      review={review}
+      setReview={setReview}
+      onSubmit={handleSubmitReview}
+      isSubmitting={isSubmittingReview}
+    />
+  )
+)}
       
 
       {season?.status === "REVEALED" && challenge && (

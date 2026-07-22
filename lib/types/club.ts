@@ -32,6 +32,7 @@ export interface Season {
   selected_anime_id: string | null
   anime?: SeasonAnime | null
   minimum_episodes: number
+  deadline?: string | null
   created_at?: string
 }
 

@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server"
 
 export async function createSeason(
   clubId: string,
+  minimumEpisodes: number,
+  durationDays: number,
   title?: string
 ) {
   const supabase = await createClient()
@@ -16,7 +18,6 @@ export async function createSeason(
     throw new Error("Unauthorized")
   }
 
-  // controllo stagione aperta
   const { data: existingSeason } = await supabase
     .from("seasons")
     .select("*")
@@ -30,8 +31,30 @@ export async function createSeason(
     )
   }
 
+  if (
+    !Number.isInteger(minimumEpisodes) ||
+    minimumEpisodes < 1
+  ) {
+    throw new Error(
+      "Season goal must be at least 1 episode"
+    )
+  }
+
+  if (
+    !Number.isInteger(durationDays) ||
+    durationDays < 1
+  ) {
+    throw new Error(
+      "Season duration must be at least 1 day"
+    )
+  }
+
   const seasonTitle =
     title?.trim() || `Season ${Date.now()}`
+
+  const deadline = new Date(
+    Date.now() + durationDays * 24 * 60 * 60 * 1000
+  ).toISOString()
 
   const { data: season, error } = await supabase
     .from("seasons")
@@ -40,6 +63,8 @@ export async function createSeason(
       club_id: clubId,
       created_by: user.id,
       status: "PROPOSAL",
+      minimum_episodes: minimumEpisodes,
+      deadline,
     })
     .select()
     .single()

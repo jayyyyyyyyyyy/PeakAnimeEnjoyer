@@ -17,6 +17,8 @@ export function EmptySeasonCard({
 }: EmptySeasonCardProps) {
   const router = useRouter()
 
+  const [minimumEpisodes, setMinimumEpisodes] = useState(12)
+  const [durationDays, setDurationDays] = useState(30)
   const [isCreating, setIsCreating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -25,7 +27,7 @@ export function EmptySeasonCard({
     setIsCreating(true)
 
     try {
-      await createSeason(clubId)
+      await createSeason(clubId, minimumEpisodes, durationDays)
       router.refresh()
     } catch (err) {
       setError(
@@ -68,9 +70,79 @@ export function EmptySeasonCard({
 
       {isOwner ? (
         <>
+          <div className="mx-auto mt-5 grid max-w-[360px] grid-cols-2 gap-4">
+            <div>
+              <label className="mb-2 block text-left text-xs text-white/50">
+                Season goal (episodes)
+              </label>
+
+              <input
+                type="number"
+                min={1}
+                value={minimumEpisodes}
+                onChange={(e) =>
+                  setMinimumEpisodes(Number(e.target.value))
+                }
+                className="
+                  w-full
+                  rounded-xl
+
+                  border
+                  border-white/10
+
+                  bg-[#090B14]
+
+                  p-3
+
+                  text-center
+                  text-white
+
+                  focus:border-pink-500
+                  focus:outline-none
+                "
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block text-left text-xs text-white/50">
+                Duration (days)
+              </label>
+
+              <input
+                type="number"
+                min={1}
+                value={durationDays}
+                onChange={(e) =>
+                  setDurationDays(Number(e.target.value))
+                }
+                className="
+                  w-full
+                  rounded-xl
+
+                  border
+                  border-white/10
+
+                  bg-[#090B14]
+
+                  p-3
+
+                  text-center
+                  text-white
+
+                  focus:border-pink-500
+                  focus:outline-none
+                "
+              />
+            </div>
+          </div>
+
           <button
             onClick={handleCreateSeason}
-            disabled={isCreating}
+            disabled={
+              isCreating ||
+              minimumEpisodes < 1 ||
+              durationDays < 1
+            }
             className="
               mt-5
               rounded-xl

@@ -17,9 +17,18 @@ export function AnimeCard({
 }: AnimeCardProps) {
   if (!season?.anime) return null
 
+  const totalEpisodes = season.anime.episodes
+
+  function clamp(value: number) {
+    const lower = Math.max(0, value)
+    return totalEpisodes
+      ? Math.min(lower, totalEpisodes)
+      : lower
+  }
+
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-pink-500/15 bg-gradient-to-br from-white/[0.06] to-white/[0.02] backdrop-blur-2xl shadow-[0_0_50px_rgba(236,72,153,.08)]">
-      <div className="absolute inset-0 bg-gradient-to-t from-[#090B14] via-transparent to-transparent z-10" />
+    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1E293B] to-[#0F172A] border border-white/10">
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A] via-transparent to-transparent z-10" />
 
       <div
         className="h-48 bg-cover bg-center"
@@ -47,7 +56,7 @@ export function AnimeCard({
               </p>
 
               <p className="text-2xl font-bold text-white">
-                {season.anime.episodes ?? "?"}
+                {totalEpisodes ?? "?"}
               </p>
             </div>
 
@@ -89,16 +98,76 @@ export function AnimeCard({
               />
             </div>
 
-            <input
-              type="number"
-              min={0}
-              max={season.minimum_episodes}
-              value={episodesWatched}
-              onChange={(e) =>
-                setEpisodesWatched(Number(e.target.value))
-              }
-              className="w-full rounded-xl bg-[#090B14] border border-white/10 p-3 text-white transition-colors focus:border-pink-500 focus:outline-none"
-            />
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() =>
+                  setEpisodesWatched(clamp(episodesWatched - 1))
+                }
+                className="
+                  h-12
+                  w-12
+                  shrink-0
+
+                  rounded-xl
+
+                  border
+                  border-white/10
+
+                  bg-[#090B14]
+
+                  text-lg
+                  font-bold
+                  text-white
+
+                  transition-colors
+
+                  hover:border-pink-500/40
+                "
+              >
+                −
+              </button>
+
+              <input
+                type="number"
+                min={0}
+                max={totalEpisodes ?? undefined}
+                value={episodesWatched}
+                onChange={(e) =>
+                  setEpisodesWatched(clamp(Number(e.target.value)))
+                }
+                className="w-full rounded-xl bg-[#090B14] border border-white/10 p-3 text-center text-white transition-colors focus:border-pink-500 focus:outline-none"
+              />
+
+              <button
+                type="button"
+                onClick={() =>
+                  setEpisodesWatched(clamp(episodesWatched + 1))
+                }
+                className="
+                  h-12
+                  w-12
+                  shrink-0
+
+                  rounded-xl
+
+                  border
+                  border-white/10
+
+                  bg-[#090B14]
+
+                  text-lg
+                  font-bold
+                  text-white
+
+                  transition-colors
+
+                  hover:border-pink-500/40
+                "
+              >
+                +
+              </button>
+            </div>
 
             <button
               onClick={handleSaveProgress}
