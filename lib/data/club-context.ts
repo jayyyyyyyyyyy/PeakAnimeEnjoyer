@@ -454,21 +454,28 @@ export async function getClubContext(
       : currentUserReview
         ? [currentUserReview]
         : []
-  const reviewSummary: ReviewSummary = {
-    currentUserReview,
-    reviews: visibleReviews,
-    submittedCount: reviews.length,
-    memberCount,
-    allSubmitted:
-      memberCount > 0 &&
-      reviews.length >= memberCount,
-    revealed: revealedReviews.length > 0,
-    averages: calculateReviewAverages(
-      revealedReviews.length > 0
-        ? revealedReviews
-        : reviews
-    ),
-  }
+const { data: submissionCountData } = await supabase.rpc(
+  "get_review_submission_count",
+  { p_season_id: season.id }
+)
+
+const submittedCount = submissionCountData ?? reviews.length
+
+const reviewSummary: ReviewSummary = {
+  currentUserReview,
+  reviews: visibleReviews,
+  submittedCount,
+  memberCount,
+  allSubmitted:
+    memberCount > 0 &&
+    submittedCount >= memberCount,
+  revealed: revealedReviews.length > 0,
+  averages: calculateReviewAverages(
+    revealedReviews.length > 0
+      ? revealedReviews
+      : reviews
+  ),
+}
   const appNotifications = buildNotifications({
     season,
     membership: membership as Membership,
